@@ -12,16 +12,16 @@ namespace Minesweeper
     /// <summary>
     /// This is the main type for your game.
     /// </summary>
-    public class Game1 : Game
+    public class GameRoot : Game
     {
         GraphicsDeviceManager graphics;
         SpriteBatch spriteBatch;
 
-        public Game1()
+        public GameRoot()
         {
             graphics = new GraphicsDeviceManager(this);
             Content.RootDirectory = "Content";
-            graphics.IsFullScreen = true;
+            graphics.IsFullScreen = false;
         }
 
         /// <summary>
@@ -46,6 +46,7 @@ namespace Minesweeper
             spriteBatch = new SpriteBatch(GraphicsDevice);
 
             //TODO: use this.Content to load your game content here
+            AssetBank.Load(Content);
         }
 
         /// <summary>

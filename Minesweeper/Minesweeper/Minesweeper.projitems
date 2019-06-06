@@ -9,7 +9,11 @@
     <Import_RootNamespace>Minesweeper</Import_RootNamespace>
   </PropertyGroup>
   <ItemGroup>
-    <Compile Include="$(MSBuildThisFileDirectory)Game1.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)AssetBank.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Cell.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)CellType.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)GameRoot.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)MineField.cs" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="$(MSBuildThisFileDirectory)Content\" />
@@ -18,4 +22,4 @@
     <MonoGameContentReference Include="$(MSBuildThisFileDirectory)Content\Content.mgcb" />
     <None Include="$(MSBuildThisFileDirectory)Content\Content.mgcb" />
   </ItemGroup>
- </Project>
+</Project>
