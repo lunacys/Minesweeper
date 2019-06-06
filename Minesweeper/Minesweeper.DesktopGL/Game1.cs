@@ -14,6 +14,10 @@ namespace Minesweeper.DesktopGL
             graphics = new GraphicsDeviceManager(this);
             Content.RootDirectory = "Content";
             IsMouseVisible = true;
+
+            graphics.PreferredBackBufferWidth = 1600;
+            graphics.PreferredBackBufferHeight = 900;
+            graphics.ApplyChanges();
         }
 
         protected override void Initialize()

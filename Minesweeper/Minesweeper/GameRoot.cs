@@ -16,12 +16,17 @@ namespace Minesweeper
     {
         GraphicsDeviceManager graphics;
         SpriteBatch spriteBatch;
+        private MineField _mineField;
 
         public GameRoot()
         {
             graphics = new GraphicsDeviceManager(this);
             Content.RootDirectory = "Content";
             graphics.IsFullScreen = false;
+            IsMouseVisible = true;
+
+            graphics.PreferredBackBufferWidth = 1600;
+            graphics.PreferredBackBufferHeight = 900;
         }
 
         /// <summary>
@@ -47,6 +52,9 @@ namespace Minesweeper
 
             //TODO: use this.Content to load your game content here
             AssetBank.Load(Content);
+
+            _mineField = new MineField(15, 15, 1);
+            _mineField.Generate();
         }
 
         /// <summary>
@@ -76,6 +84,8 @@ namespace Minesweeper
             GraphicsDevice.Clear(Color.CornflowerBlue);
 
             //TODO: Add your drawing code here
+            _mineField.Draw(spriteBatch);
+
             base.Draw(gameTime);
         }
     }

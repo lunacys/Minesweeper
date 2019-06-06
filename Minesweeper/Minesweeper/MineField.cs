@@ -1,5 +1,7 @@
 ﻿using System;
 using System.Diagnostics;
+using Microsoft.Xna.Framework;
+using Microsoft.Xna.Framework.Graphics;
 
 namespace Minesweeper
 {
@@ -64,9 +66,56 @@ namespace Minesweeper
             {
                 for (int j = 0; j < Width; j++)
                 {
-                    
+                    var cell = _cells[i, j];
+
+                    if (cell.Type == CellType.Mine)
+                        continue;
+
+                    int minesAround = 0;
+
+                    for (int i1 = -1; i1 <= 1; i1++)
+                    {
+                        for (int j1 = -1; j1 <= 1; j1++)
+                        {
+                            var xOffset = i + i1;
+                            var yOffset = j + j1;
+
+                            if (xOffset < 0 || xOffset >= Width 
+                                || yOffset < 0 || yOffset >= Height)
+                                continue;
+
+                            if (_cells[xOffset, yOffset].Type == CellType.Mine)
+                                minesAround++;
+                        }
+                    }
+
+                    cell.MinesAround = minesAround;
                 }
             }
+        }
+
+        public void Draw(SpriteBatch spriteBatch)
+        {
+            spriteBatch.Begin();
+
+            for (int i = 0; i < Height; i++)
+            {
+                for (int j = 0; j < Width; j++)
+                {
+                    var cell = _cells[i, j];
+
+                    if (cell.Type == CellType.Mine)
+                    {
+                        spriteBatch.Draw(AssetBank.MineCellTexture, new Vector2(i * 32, j * 32), null, Color.White);
+                    }
+                    else
+                    {
+                        spriteBatch.Draw(AssetBank.Cells[cell.MinesAround], new Vector2(i * 32, j * 32), null, Color.White);
+                    }
+                }
+            }
+
+            spriteBatch.End();
         }
     }
 }
