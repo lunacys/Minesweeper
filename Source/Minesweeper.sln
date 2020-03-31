@@ -1,13 +1,39 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 16
-VisualStudioVersion = 16.0.28922.388
+VisualStudioVersion = 16.0.29920.165
 MinimumVisualStudioVersion = 10.0.40219.1
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Minesweeper.Framework", "Minesweeper.Framework\Minesweeper.Framework.csproj", "{33F067C8-BA32-45E4-91A4-B63C962E7584}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Minesweeper.DesktopGL", "Minesweeper.DesktopGL\Minesweeper.DesktopGL.csproj", "{8E13E9EB-C757-42B8-8703-AE13E11DA30D}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Minesweeper.Android", "Minesweeper.Android\Minesweeper.Android.csproj", "{0558B297-C8C7-4238-948C-3A85E1BB6679}"
+EndProject
 Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{33F067C8-BA32-45E4-91A4-B63C962E7584}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{33F067C8-BA32-45E4-91A4-B63C962E7584}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{33F067C8-BA32-45E4-91A4-B63C962E7584}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{33F067C8-BA32-45E4-91A4-B63C962E7584}.Release|Any CPU.Build.0 = Release|Any CPU
+		{8E13E9EB-C757-42B8-8703-AE13E11DA30D}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{8E13E9EB-C757-42B8-8703-AE13E11DA30D}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{8E13E9EB-C757-42B8-8703-AE13E11DA30D}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{8E13E9EB-C757-42B8-8703-AE13E11DA30D}.Release|Any CPU.Build.0 = Release|Any CPU
+		{0558B297-C8C7-4238-948C-3A85E1BB6679}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{0558B297-C8C7-4238-948C-3A85E1BB6679}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{0558B297-C8C7-4238-948C-3A85E1BB6679}.Debug|Any CPU.Deploy.0 = Debug|Any CPU
+		{0558B297-C8C7-4238-948C-3A85E1BB6679}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{0558B297-C8C7-4238-948C-3A85E1BB6679}.Release|Any CPU.Build.0 = Release|Any CPU
+		{0558B297-C8C7-4238-948C-3A85E1BB6679}.Release|Any CPU.Deploy.0 = Release|Any CPU
+	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
-		SolutionGuid = {49A0CBBF-6451-4DE0-A80A-2AF0F83791F1}
+		SolutionGuid = {ED90B57B-0F06-4225-9AA8-78FAC9CEC73F}
 	EndGlobalSection
 EndGlobal
