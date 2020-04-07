@@ -87,8 +87,8 @@
     <MonoGameContentReference Include="Content\Content.mgcb" Visible="false" />
   </ItemGroup>
   <ItemGroup>
-    <PackageReference Include="MonoGame.Content.Builder" Version="3.7.*" />
-    <PackageReference Include="MonoGame.Framework.Android" Version="3.7.*" />
+    <PackageReference Include="MonoGame.Content.Builder" Version="3.7.0.9" />
+    <PackageReference Include="MonoGame.Framework.Android" Version="3.7.1.189" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Minesweeper.Framework\Minesweeper.Framework.csproj">

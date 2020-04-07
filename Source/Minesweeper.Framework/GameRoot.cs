@@ -2,35 +2,43 @@
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
 using Microsoft.Xna.Framework.Input.Touch;
+using Minesweeper.Framework.Screens;
+using MonoGame.Extended.Screens;
 
 namespace Minesweeper.Framework
 {
     public class GameRoot : Game
     {
         private readonly GraphicsDeviceManager _graphics;
-        private SpriteBatch _spriteBatch;
+        private ScreenManager _screenManager;
 
         public GameRoot()
         {
             _graphics = new GraphicsDeviceManager(this);
+            _graphics.PreferredBackBufferWidth = 1600;
+            _graphics.PreferredBackBufferHeight = 900;
+            _graphics.PreferMultiSampling = true;
+            
             Content.RootDirectory = "Content";
 
             IsMouseVisible = true;
-            _graphics.SupportedOrientations = DisplayOrientation.LandscapeLeft | DisplayOrientation.LandscapeRight;
+
+            _screenManager = new ScreenManager();
+            
+            
+            Components.Add(_screenManager);
         }
 
         protected override void Initialize()
         {
-            // TODO: Add your initialization logic here
-
             base.Initialize();
+            var ga = new MineFieldScreen(this);
+            _screenManager.LoadScreen(ga);
         }
 
         protected override void LoadContent()
         {
-            _spriteBatch = new SpriteBatch(GraphicsDevice);
-
-            // TODO: use this.Content to load your game content here
+            base.LoadContent();
         }
 
         protected override void Update(GameTime gameTime)
@@ -39,17 +47,11 @@ namespace Minesweeper.Framework
                 Keyboard.GetState().IsKeyDown(Keys.Escape))
                 Exit();
 
-            // TODO: Add your update logic here
-
             base.Update(gameTime);
         }
 
         protected override void Draw(GameTime gameTime)
         {
-            GraphicsDevice.Clear(Color.CornflowerBlue);
-
-            // TODO: Add your drawing code here
-
             base.Draw(gameTime);
         }
     }
