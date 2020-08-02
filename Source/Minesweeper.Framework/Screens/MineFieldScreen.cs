@@ -3,6 +3,7 @@ using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
 using Minesweeper.Framework.Inputs;
+using Minesweeper.Framework.MinePutters;
 using MonoGame.Extended;
 using MonoGame.Extended.Screens;
 
@@ -25,7 +26,7 @@ namespace Minesweeper.Framework.Screens
         public MineFieldScreen(Game game) 
             : base(game)
         {
-            _field = new MineField(30, 15, 99, true);
+            _field = new MineField(30, 15, 99, true, MinePutterDifficulty.Easy);
             _textures = new Texture2D[4 * 3];
             
         }
@@ -79,7 +80,7 @@ namespace Minesweeper.Framework.Screens
                 }
                 if (_inputHandler.WasMouseButtonReleased(MouseButton.Left))
                 {
-                    if (Math.Abs((_lastCameraPos - _camera.Position).Length()) < 10f &&
+                    if (Math.Abs((_lastCameraPos - _camera.Position).Length()) < 20f &&
                         mousePos.X > 0 &&
                         mousePos.Y > 0 &&
                         mousePos.X < _field.Width * _field.CellSize &&
@@ -89,7 +90,7 @@ namespace Minesweeper.Framework.Screens
                         if (res)
                             _lose = true;
                     }
-
+                    
                     _lastCameraPos = _camera.Position;
                 }
             }

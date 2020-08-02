@@ -1,4 +1,5 @@
 ﻿using System;
+using Minesweeper.Framework.MinePutters;
 
 namespace Minesweeper.Framework
 {
@@ -12,19 +13,20 @@ namespace Minesweeper.Framework
         public bool IsResolvable { get; }
         public int TotalCells => Width * Height;
 
-        private int _generatedMines = 0;
-        private Random _random;
+        private bool _isFirstTurn = true;
+        private IMinePutter _minePutter;
 
         public event EventHandler Changed;
 
         public int CellSize => 64;
 
-        public MineField(int width, int height, int totalMines, bool isResolvable)
+        public MineField(int width, int height, int totalMines, bool isResolvable, MinePutterDifficulty minePutterDifficulty)
         {
             Width = width;
             Height = height;
             IsResolvable = isResolvable;
             TotalMines = totalMines;
+            _minePutter = new MinePutterFactory().Generate(minePutterDifficulty);
 
             if (width <= 0)
                 throw new ArgumentOutOfRangeException(nameof(Width), "Width cannot be less or equal to zero");
@@ -36,12 +38,11 @@ namespace Minesweeper.Framework
                 throw new ArgumentOutOfRangeException(nameof(TotalCells), "Total mines cannot be greater or equal to total cells");
 
             Cells = new FieldCell[height, width];
-            _random = new Random();
         }
 
         public void Generate()
         {
-            _generatedMines = 0;
+            _isFirstTurn = true;
 
             for (int i = 0; i < Height; i++)
             {
@@ -51,21 +52,13 @@ namespace Minesweeper.Framework
                 }
             }
 
-            while (_generatedMines < TotalMines)
-            {
-                for (int i = 0; i < Height; i++)
-                {
-                    for (int j = 0; j < Width; j++)
-                    {
-                        if (Cells[i, j].Type != FieldCellType.Mine && _random.Next(1, Height * Width) == 1)
-                        {
-                            Cells[i, j].Type = FieldCellType.Mine;
-                            _generatedMines++;
-                        }
-                    }
-                }
-            }
+            RebuildOpenCells();
 
+            Changed?.Invoke(this, EventArgs.Empty);
+        }
+
+        private void RebuildOpenCells()
+        {
             for (int i = 0; i < Height; i++)
             {
                 for (int j = 0; j < Width; j++)
@@ -96,8 +89,6 @@ namespace Minesweeper.Framework
                     cell.MinesAround = minesAround;
                 }
             }
-
-            Changed?.Invoke(this, EventArgs.Empty);
         }
 
         public bool RevealAt(int x, int y, bool ignoreMines = false)
@@ -106,6 +97,13 @@ namespace Minesweeper.Framework
                 return false;
 
             var cell = Cells[y, x];
+
+            if (_isFirstTurn)
+            {
+                _minePutter.PutMines(this, x, y);
+                RebuildOpenCells();
+                _isFirstTurn = false;
+            }
 
             if (cell.IsFlagged || cell.IsOpen)
                 return false;
