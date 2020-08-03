@@ -13,7 +13,7 @@ namespace Minesweeper.Framework
         public int MinesLeft { get; private set; }
         public int FreeCellsLeft { get; private set; }
         public bool IsResolvable { get; }
-        public bool UseRecursiveOpen { get; set; }
+        public bool UseRecursiveOpen { get; set; } = true;
         public int TotalCells => Width * Height;
 
         private bool _isFirstTurn = true;
@@ -57,9 +57,44 @@ namespace Minesweeper.Framework
                 }
             }
 
-            RebuildOpenCells();
-
             Changed?.Invoke(this, EventArgs.Empty);
+        }
+
+        public void Reset()
+        {
+            _isFirstTurn = true;
+            MinesLeft = TotalMines;
+            FreeCellsLeft = Width * Height - MinesLeft;
+            
+            for (int i = 0; i < Height; i++)
+            {
+                for (int j = 0; j < Width; j++)
+                {
+                    Cells[i, j].IsOpen = false;
+                }
+            }
+            
+            Changed?.Invoke(this, EventArgs.Empty);
+        }
+
+        public void Solve()
+        {
+            // TODO: Add a proper algorithm
+            for (int i = 0; i < Height; i++)
+            {
+                for (int j = 0; j < Width; j++)
+                {
+                    var cell = Cells[i, j];
+                    if (cell.IsMine)
+                    {
+                        FlagAt(j, i);
+                    }
+                    else
+                    {
+                        RevealAt(j, i);
+                    }
+                }
+            }
         }
 
         private void RebuildOpenCells()
@@ -96,8 +131,11 @@ namespace Minesweeper.Framework
             }
         }
 
-        public bool RevealAt(int x, int y, bool ignoreMines = false)
+        public bool RevealAt(int x, int y, bool overrideRecursion = false)
         {
+            if (MinesLeft == 0 && FreeCellsLeft == 0)
+                return false;
+
             if (y < 0 || y >= Height || x < 0 || x >= Width)
                 return false;
 
@@ -110,15 +148,41 @@ namespace Minesweeper.Framework
                 _isFirstTurn = false;
             }
 
-            if (cell.IsFlagged || cell.IsOpen)
+            if (cell.IsFlagged)
                 return false;
-            if (ignoreMines && cell.IsMine)
-                return false;
+            if (cell.IsOpen)
+            {
+                if (UseRecursiveOpen && !_isFirstTurn && !overrideRecursion)
+                {
+                    var flags = GetFlagsAroundCell(x, y);
+
+                    if (flags > 0 && flags == cell.MinesAround)
+                    {
+                        Console.WriteLine("Opening");
+                        RevealAt(x - 1, y - 1, true);
+                        RevealAt(x - 1, y + 1, true);
+                        RevealAt(x + 1, y - 1, true);
+                        RevealAt(x + 1, y + 1, true);
+
+                        RevealAt(x - 1, y, true);
+                        RevealAt(x + 1, y, true);
+                        RevealAt(x, y - 1, true);
+                        RevealAt(x, y + 1, true);
+                    }
+                    
+                    return false;
+                }
+                else
+                {
+                    return false;
+                }
+            }
 
             cell.IsOpen = true;
+            FreeCellsLeft--;
             Changed?.Invoke(this, EventArgs.Empty);
 
-            if (!ignoreMines && cell.IsMine)
+            if (cell.IsMine)
                 return true;
 
             if (cell.MinesAround == 0)
@@ -139,6 +203,9 @@ namespace Minesweeper.Framework
 
         public void FlagAt(int x, int y)
         {
+            if (MinesLeft == 0 && FreeCellsLeft == 0)
+                return;
+            
             if (x < 0 || x >= Width || y < 0 || y >= Height)
                 return;
             
@@ -159,6 +226,32 @@ namespace Minesweeper.Framework
             }
             
             Changed?.Invoke(this, EventArgs.Empty);
+        }
+
+        private int GetFlagsAroundCell(int x, int y)
+        {
+            if (Cells[y, x].MinesAround == 0)
+                return 0;
+            
+            int minesAround = 0;
+
+            for (int i1 = -1; i1 <= 1; i1++)
+            {
+                for (int j1 = -1; j1 <= 1; j1++)
+                {
+                    var xOffset = y + i1;
+                    var yOffset = x + j1;
+
+                    if (xOffset < 0 || xOffset >= Height
+                                    || yOffset < 0 || yOffset >= Width)
+                        continue;
+
+                    if (Cells[xOffset, yOffset].IsFlagged)
+                        minesAround++;
+                }
+            }
+
+            return minesAround;
         }
     }
 }

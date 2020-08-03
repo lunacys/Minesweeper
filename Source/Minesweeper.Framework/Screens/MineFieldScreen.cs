@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Linq;
 using ImGuiNET;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
@@ -26,12 +27,16 @@ namespace Minesweeper.Framework.Screens
         private bool _lose;
         private Color _loseColor = Color.Red * 0.01f;
 
+        private int _fieldWidth = 9;
+        private int _fieldHeight = 9;
+        private int _totalMines = 15;
+        private int _minePutterDifficulty = (int) MinePutterDifficulty.Easy;
+
         public MineFieldScreen(Game game) 
             : base(game)
         {
-            _field = new MineField(30, 15, 99, true, MinePutterDifficulty.Easy);
+            _field = new MineField(9, 9, 15, true, MinePutterDifficulty.Easy);
             _textures = new Texture2D[4 * 3];
-            
         }
 
         public override void Initialize()
@@ -72,6 +77,11 @@ namespace Minesweeper.Framework.Screens
             if (InputManager.IsMouseButtonDown(MouseButton.Middle))
             {
                 _camera.Move(-InputManager.MouseVelocity / _camera.Zoom);
+                Mouse.SetCursor(MouseCursor.SizeAll);
+            }
+            else
+            {
+                Mouse.SetCursor(MouseCursor.Arrow);
             }
 
             if (!_lose)
@@ -161,22 +171,119 @@ namespace Minesweeper.Framework.Screens
             _imGuiRenderer.BeforeLayout(gameTime);
             bool useRecursiveOpen = _field.UseRecursiveOpen;
 
-            ImGui.Begin("Debug Info");
-            
-            ImGui.End();
-
             ImGui.Begin("Game Settings");
             ImGui.Text($"Total Mines: {_field.TotalMines}");
             ImGui.Text($"Total Cells: {_field.TotalCells}");
             ImGui.Text($"Field Resolution: {_field.Width}x{_field.Height}");
             ImGui.Text($"Mines Left: {_field.MinesLeft}");
             ImGui.Text($"Free cells: {_field.FreeCellsLeft}");
+            
             ImGui.Checkbox($"Use recursive open", ref useRecursiveOpen);
+            ImGui.SameLine();
+            HelpMarker("Recursively opens cells around the clicked cell if its number value is the same as flags around");
+
+            if (ImGui.Button("New Game"))
+            {
+                Start();
+            }
+            ImGui.SameLine();
+            if (ImGui.Button("Restart"))
+            {
+                _field.Reset();
+            }
+            ImGui.SameLine();
+            if (ImGui.Button("Undo"))
+            {
+                // TODO: Undo
+            }
+            ImGui.SameLine();
+            if (ImGui.Button("Redo"))
+            {
+                // TODO: Redo
+            }
+            ImGui.SameLine();
+            if (ImGui.Button("Solve"))
+            {
+                _field.Solve();
+            }
+            
+            ImGui.Separator();
+            ImGui.SetNextItemWidth(ImGui.GetFontSize() * 6f);
+            ImGui.InputInt("Field Width", ref _fieldWidth);
+            ImGui.SetNextItemWidth(ImGui.GetFontSize() * 6f);
+            ImGui.InputInt("Field Height", ref _fieldHeight);
+            ImGui.SetNextItemWidth(ImGui.GetFontSize() * 6f);
+            ImGui.InputInt("Total Mines", ref _totalMines);
+            ImGui.SetNextItemWidth(ImGui.GetFontSize() * 8f);
+            ImGui.ListBox("Mine Putter Difficulty", ref _minePutterDifficulty,
+                Enum.GetNames(typeof(MinePutterDifficulty)), 3);
+            
+            if (ImGui.Button("Submit"))
+            {
+                Start();
+            }
+            
+            ImGui.Separator();
+            
+            ImGui.Text("Difficulty Presets:");
+            if (ImGui.Button("Easy"))
+            {
+                _fieldWidth = 9;
+                _fieldHeight = 9;
+                _totalMines = 10;
+                Start();
+            }
+            ImGui.SameLine();
+            HelpMarker("9x9, 10 mines");
+            ImGui.SameLine();
+            if (ImGui.Button("Medium"))
+            {
+                _fieldWidth = 16;
+                _fieldHeight = 16;
+                _totalMines = 40;
+                Start();
+            }
+            
+            ImGui.SameLine();
+            HelpMarker("16x16, 40 mines");
+            ImGui.SameLine();
+            if (ImGui.Button("Hard"))
+            {
+                _fieldWidth = 30;
+                _fieldHeight = 16;
+                _totalMines = 99;
+                Start();
+            }
+            ImGui.SameLine();
+            HelpMarker("30x16, 99 mines");
+            
             ImGui.End();
 
             _imGuiRenderer.AfterLayout();
 
             _field.UseRecursiveOpen = useRecursiveOpen;
+        }
+
+        private void Start()
+        {
+            _lose = false;
+            _loseColor = Color.Red * 0.01f;
+            _field = new MineField(_fieldWidth, _fieldHeight, _totalMines, true, (MinePutterDifficulty) _minePutterDifficulty);
+            _fieldRenderer = new MineFieldRenderer(_field, GraphicsDevice, _tilesetTexture);
+            _field.Generate();
+        }
+
+        private void HelpMarker(string description)
+        {
+            ImGui.TextDisabled("(?)");
+            if (ImGui.IsItemHovered())
+            {
+                ImGui.BeginTooltip();
+                ImGui.PushTextWrapPos(ImGui.GetFontSize() * 35.0f);
+                ImGui.TextUnformatted(description);
+                ImGui.PopTextWrapPos();
+                ImGui.EndTooltip();
+            }
         }
     }
 }
