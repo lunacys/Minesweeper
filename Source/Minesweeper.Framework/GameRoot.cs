@@ -1,7 +1,9 @@
-﻿using Microsoft.Xna.Framework;
+﻿using System;
+using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
 using Microsoft.Xna.Framework.Input.Touch;
+using Minesweeper.Framework.Inputs;
 using Minesweeper.Framework.Screens;
 using MonoGame.Extended.Screens;
 
@@ -43,8 +45,9 @@ namespace Minesweeper.Framework
 
         protected override void Update(GameTime gameTime)
         {
-            if (GamePad.GetState(PlayerIndex.One).Buttons.Back == ButtonState.Pressed || 
-                Keyboard.GetState().IsKeyDown(Keys.Escape))
+            InputManager.Update(gameTime);
+
+            if (InputManager.IsKeyDown(Keys.Escape))
                 Exit();
 
             base.Update(gameTime);

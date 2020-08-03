@@ -32,8 +32,8 @@
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="MonoGame.Content.Builder" Version="3.7.0.8" />
-    <PackageReference Include="MonoGame.Framework.DesktopGL.Core" Version="3.8.0.13" />
+    <PackageReference Include="MonoGame.Content.Builder.Task" Version="3.8.0.1375-develop" />
+    <PackageReference Include="MonoGame.Framework.DesktopGL" Version="3.8.0.1375-develop" />
   </ItemGroup>
 
   <ItemGroup>

@@ -10,7 +10,10 @@ namespace Minesweeper.Framework
         public int TotalMines { get;}
         public int Width { get; }
         public int Height { get; }
+        public int MinesLeft { get; private set; }
+        public int FreeCellsLeft { get; private set; }
         public bool IsResolvable { get; }
+        public bool UseRecursiveOpen { get; set; }
         public int TotalCells => Width * Height;
 
         private bool _isFirstTurn = true;
@@ -43,6 +46,8 @@ namespace Minesweeper.Framework
         public void Generate()
         {
             _isFirstTurn = true;
+            MinesLeft = TotalMines;
+            FreeCellsLeft = Width * Height - MinesLeft;
 
             for (int i = 0; i < Height; i++)
             {
@@ -134,12 +139,25 @@ namespace Minesweeper.Framework
 
         public void FlagAt(int x, int y)
         {
+            if (x < 0 || x >= Width || y < 0 || y >= Height)
+                return;
+            
             var cell = Cells[y, x];
 
             if (cell.IsOpen)
                 return;
 
-            cell.IsFlagged = !cell.IsFlagged;
+            if (cell.IsFlagged)
+            {
+                MinesLeft++;
+                cell.IsFlagged = false;
+            }
+            else
+            {
+                MinesLeft--;
+                cell.IsFlagged = true;
+            }
+            
             Changed?.Invoke(this, EventArgs.Empty);
         }
     }
