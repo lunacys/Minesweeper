@@ -12,6 +12,7 @@ namespace Minesweeper.Framework
         public int Height { get; }
         public int MinesLeft { get; private set; }
         public int FreeCellsLeft { get; private set; }
+        public int TotalOpenCells { get; private set; }
         public bool IsResolvable { get; }
         public bool UseRecursiveOpen { get; set; } = true;
         public int TotalCells => Width * Height;
@@ -48,6 +49,7 @@ namespace Minesweeper.Framework
             _isFirstTurn = true;
             MinesLeft = TotalMines;
             FreeCellsLeft = Width * Height - MinesLeft;
+            TotalOpenCells = 0;
 
             for (int i = 0; i < Height; i++)
             {
@@ -65,11 +67,13 @@ namespace Minesweeper.Framework
             _isFirstTurn = true;
             MinesLeft = TotalMines;
             FreeCellsLeft = Width * Height - MinesLeft;
+            TotalOpenCells = 0;
             
             for (int i = 0; i < Height; i++)
             {
                 for (int j = 0; j < Width; j++)
                 {
+                    Cells[i, j].IsFlagged = false;
                     Cells[i, j].IsOpen = false;
                 }
             }
@@ -143,7 +147,8 @@ namespace Minesweeper.Framework
 
             if (_isFirstTurn)
             {
-                _minePutter.PutMines(this, x, y);
+                var count = _minePutter.PutMines(this, x, y);
+                Console.WriteLine(count);
                 RebuildOpenCells();
                 _isFirstTurn = false;
             }
@@ -158,7 +163,6 @@ namespace Minesweeper.Framework
 
                     if (flags > 0 && flags == cell.MinesAround)
                     {
-                        Console.WriteLine("Opening");
                         RevealAt(x - 1, y - 1, true);
                         RevealAt(x - 1, y + 1, true);
                         RevealAt(x + 1, y - 1, true);
@@ -184,6 +188,8 @@ namespace Minesweeper.Framework
 
             if (cell.IsMine)
                 return true;
+
+            TotalOpenCells++;
 
             if (cell.MinesAround == 0)
             {

@@ -6,7 +6,7 @@ namespace Minesweeper.Framework.MinePutters
     {
         private Random _random = new Random();
         
-        public void PutMines(MineField mineField, int clickCellX, int clickCellY)
+        public int PutMines(MineField mineField, int clickCellX, int clickCellY)
         {
             var generatedMines = 0;
             
@@ -16,6 +16,9 @@ namespace Minesweeper.Framework.MinePutters
                 {
                     for (int j = 0; j < mineField.Width; j++)
                     {
+                        if (generatedMines >= mineField.TotalMines)
+                            continue;
+                        
                         if (j != clickCellX && i != clickCellY && 
                             mineField.Cells[i, j].Type != FieldCellType.Mine && _random.Next(1, mineField.Height * mineField.Width) == 1)
                         {
@@ -25,6 +28,8 @@ namespace Minesweeper.Framework.MinePutters
                     }
                 }
             }
+
+            return generatedMines;
         }
     }
 }

@@ -2,6 +2,6 @@ namespace Minesweeper.Framework.MinePutters
 {
     public interface IMinePutter
     {
-        void PutMines(MineField mineField, int clickCellX, int clickCellY);
+        int PutMines(MineField mineField, int clickCellX, int clickCellY);
     }
 }
