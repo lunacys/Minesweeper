@@ -2,6 +2,20 @@
 
 A minesweeper-like game
 
+## TODO
+
+- [x] Simple minefield generation
+- [x] Flags
+- [x] Simple UI using ImGUI
+- [x] Generate mines after first open cell
+- [x] Easy mine generator (guaranteed that there will be no mines at the starting 3x3 square)
+- [x] Open appropriate cells after clicking on a free cell with the number value
+- [ ] Open appropriate cells recursively
+- [ ] Guess-free minefield generation
+- [ ] More game settings
+- [ ] Better UI
+- [ ] Android version
+
 ## Dev Notes
 
 Taken from here: https://stackoverflow.com/questions/1738128/minesweeper-solving-algorithm
