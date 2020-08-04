@@ -14,6 +14,7 @@ A minesweeper-like game
 - [x] Generate mines after first open cell
 - [x] Easy mine generator (guaranteed that there will be no mines at the starting 3x3 square)
 - [x] Open appropriate cells after clicking on a free cell with the number value
+- [ ] Add Timer
 - [ ] Open appropriate cells recursively
 - [ ] Add warnings if there are more flags around a cell than its number value
 - [ ] Guess-free minefield generation
