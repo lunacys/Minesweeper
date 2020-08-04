@@ -8,7 +8,7 @@ namespace Minesweeper.Framework
     public class MineField
     {
 
-        public readonly FieldCell[,] Cells;
+        public FieldCell[,] Cells { get; private set; }
         public int TotalMines { get;}
         public int Width { get; }
         public int Height { get; }
@@ -258,6 +258,16 @@ namespace Minesweeper.Framework
             }
 
             return list;
+        }
+
+        public void RestoreFromSnapshot(MineFieldSnapshot snapshot)
+        {
+            Cells = snapshot.Cells;
+            MinesLeft = snapshot.MinesLeft;
+            FreeCellsLeft = snapshot.FreeCellsLeft;
+            TotalOpenCells = snapshot.TotalOpenCells;
+            
+            Changed?.Invoke(this, EventArgs.Empty);
         }
 
         private void CheckCellsAroundForFlags(int x, int y)
