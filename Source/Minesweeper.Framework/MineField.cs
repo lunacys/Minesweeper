@@ -1,4 +1,6 @@
 ﻿using System;
+using System.Collections.Generic;
+using Microsoft.Xna.Framework;
 using Minesweeper.Framework.MinePutters;
 
 namespace Minesweeper.Framework
@@ -230,16 +232,86 @@ namespace Minesweeper.Framework
                 MinesLeft--;
                 cell.IsFlagged = true;
             }
+
+            CheckCellsAroundForFlags(x, y);
             
             Changed?.Invoke(this, EventArgs.Empty);
         }
 
+        public IEnumerable<Vector2> GetSuitableCellPositionsAt(int x, int y)
+        {
+            var cell = Cells[y, x];
+
+            if (!cell.IsOpen)
+                return new[] {new Vector2(x, y)};
+
+            var list = new List<Vector2>();
+
+            if (cell.IsFlagged || cell.MinesAround == 0)
+                return list;
+
+            var flagsAround = GetFlagsAroundCell(x, y);
+
+            //if (cell.MinesAround == flagsAround)
+            {
+                return GetSuitableCellsAround(x, y);
+            }
+
+            return list;
+        }
+
+        private void CheckCellsAroundForFlags(int x, int y)
+        {
+            for (int i1 = -1; i1 <= 1; i1++)
+            {
+                for (int j1 = -1; j1 <= 1; j1++)
+                {
+                    var xOffset = y + i1;
+                    var yOffset = x + j1;
+
+                    if (xOffset < 0 || xOffset >= Height
+                                    || yOffset < 0 || yOffset >= Width)
+                        continue;
+
+                    var cell = Cells[xOffset, yOffset]; 
+
+                    if (cell.IsOpen && !cell.IsMine && cell.MinesAround > 0 && GetFlagsAroundCell(yOffset, xOffset) > cell.MinesAround)
+                        cell.IsWarned = true;
+                    else
+                        cell.IsWarned = false;
+                }
+            }
+        }
+
+        private IEnumerable<Vector2> GetSuitableCellsAround(int x, int y)
+        {
+            for (int i1 = -1; i1 <= 1; i1++)
+            {
+                for (int j1 = -1; j1 <= 1; j1++)
+                {
+                    var xOffset = y + i1;
+                    var yOffset = x + j1;
+
+                    if (xOffset < 0 || xOffset >= Height
+                                    || yOffset < 0 || yOffset >= Width)
+                        continue;
+
+                    var cell = Cells[xOffset, yOffset];
+
+                    if (!cell.IsFlagged && !cell.IsOpen)
+                    {
+                        yield return new Vector2(yOffset, xOffset);
+                    }
+                }
+            }
+        }
+        
         private int GetFlagsAroundCell(int x, int y)
         {
             if (Cells[y, x].MinesAround == 0)
                 return 0;
             
-            int minesAround = 0;
+            int flagsAround = 0;
 
             for (int i1 = -1; i1 <= 1; i1++)
             {
@@ -253,11 +325,11 @@ namespace Minesweeper.Framework
                         continue;
 
                     if (Cells[xOffset, yOffset].IsFlagged)
-                        minesAround++;
+                        flagsAround++;
                 }
             }
 
-            return minesAround;
+            return flagsAround;
         }
     }
 }

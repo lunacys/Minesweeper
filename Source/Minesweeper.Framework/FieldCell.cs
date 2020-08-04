@@ -8,6 +8,11 @@
         public bool IsMine => Type == FieldCellType.Mine;
         public bool IsFlagged { get; set; }
 
+        /// <summary>
+        /// Gets or sets whether a waring overlay will be drawn on the cell
+        /// </summary>
+        public bool IsWarned { get; set; }
+
         public FieldCell(FieldCellType type, int minesAround)
         {
             Type = type;

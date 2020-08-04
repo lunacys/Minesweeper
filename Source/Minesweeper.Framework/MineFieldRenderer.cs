@@ -83,9 +83,17 @@ namespace Minesweeper.Framework
                     var cell = field.Cells[i, j];
                     var pos = new Vector2(j * 64, i * 64);
 
+                    // Drawing the cell's texture
                     _spriteBatch.Draw(_textureResolver.ResolveForCell(cell), pos, null, Color.White);
+                    
+                    if (cell.IsWarned && cell.MinesAround > 0)
+                    {
+                        _spriteBatch.FillRectangle(pos, new Size2(field.CellSize, field.CellSize), Color.Red * 0.5f);
+                    }
+                    
                     if (cell.Type != FieldCellType.Mine && cell.IsOpen)
                     {
+                        // Drawing an outline rectangle
                         _spriteBatch.DrawRectangle(pos, new Size2(64, 64), Color.Gray);
                     }
                 }

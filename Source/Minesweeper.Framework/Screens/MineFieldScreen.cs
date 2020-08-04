@@ -168,8 +168,24 @@ namespace Minesweeper.Framework.Screens
                 mousePos.X < _field.Width * _field.CellSize &&
                 mousePos.Y < _field.Height * _field.CellSize)
             {
+                // Drawing a gray cell appended to the cursor
+                
                 var mousePosSnapped = new Vector2(mousePos.X - mousePos.X % _field.CellSize, mousePos.Y - mousePos.Y % _field.CellSize);
-                _spriteBatch.FillRectangle(mousePosSnapped, new Size2(_field.CellSize, _field.CellSize), Color.Black * 0.25f);
+                if (InputManager.IsMouseButtonUp(MouseButton.Left)) // Draw an overlay
+                {
+                    _spriteBatch.FillRectangle(mousePosSnapped, new Size2(_field.CellSize, _field.CellSize), Color.Black * 0.25f);
+                }
+                else // Draw an empty cell just for sake of beauty
+                {
+                    // _spriteBatch.FillRectangle(mousePosSnapped, new Size2(_field.CellSize, _field.CellSize), Color.LightGray);
+                    var positions = _field.GetSuitableCellPositionsAt((int)mousePos.X / _field.CellSize, (int)mousePos.Y / _field.CellSize);
+
+                    foreach (var position in positions)
+                    {
+                        _spriteBatch.FillRectangle(position * _field.CellSize, new Size2(_field.CellSize, _field.CellSize), Color.LightGray);
+                        _spriteBatch.DrawRectangle(position * _field.CellSize, new Size2(64, 64), Color.Gray);
+                    }
+                }
             }
 
             if (_lose)
