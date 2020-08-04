@@ -2,6 +2,10 @@
 
 A minesweeper-like game
 
+## Screenshot
+
+![Gameplay Example](./Images/Screenshot_Gameplay.png)
+
 ## TODO
 
 - [x] Simple minefield generation
@@ -11,6 +15,7 @@ A minesweeper-like game
 - [x] Easy mine generator (guaranteed that there will be no mines at the starting 3x3 square)
 - [x] Open appropriate cells after clicking on a free cell with the number value
 - [ ] Open appropriate cells recursively
+- [ ] Add warnings if there are more flags around a cell than its number value
 - [ ] Guess-free minefield generation
 - [ ] More game settings
 - [ ] Better UI
