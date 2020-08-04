@@ -25,7 +25,6 @@ namespace Minesweeper.Framework.Screens
         private Texture2D[] _textures;
         private Vector2 _lastCameraPos;
         private ImGuiRenderer _imGuiRenderer;
-        private BitmapFont _mainFont;
 
         private bool _lose = false;
         private bool _isGameStarted = false;
@@ -67,8 +66,7 @@ namespace Minesweeper.Framework.Screens
             _spriteBatch = new SpriteBatch(GraphicsDevice);
 
             _tilesetTexture = Content.Load<Texture2D>("Images/Tileset_Field");
-            _mainFont = Content.Load<BitmapFont>("Fonts/MainFont");
-
+            
             _fieldRenderer = new MineFieldRenderer(_field, GraphicsDevice, _tilesetTexture);
 
             _field.Generate();
@@ -209,6 +207,8 @@ namespace Minesweeper.Framework.Screens
         {
             _imGuiRenderer.BeforeLayout(gameTime);
             bool useRecursiveOpen = _field.UseRecursiveOpen;
+            
+            // ImGui.ShowMetricsWindow();
 
             ImGui.Begin("Game Settings");
             ImGui.Text($"TIME: {_secondsElapsed.ToString("F1", CultureInfo.InvariantCulture)}");

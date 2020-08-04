@@ -91,6 +91,10 @@ namespace Minesweeper.Framework
                 for (int j = 0; j < Width; j++)
                 {
                     var cell = Cells[i, j];
+
+                    cell.IsOpen = false;
+                    cell.IsFlagged = false;
+                    
                     if (cell.IsMine)
                     {
                         FlagAt(j, i);

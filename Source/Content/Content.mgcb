@@ -10,26 +10,9 @@
 
 #-------------------------------- References --------------------------------#
 
-/reference:..\Minesweeper.DesktopGL\bin\Debug\netcoreapp3.1\MonoGame.Extended.Content.Pipeline.dll
+/reference:../MonoGame.Extended.Content.Pipeline.dll
 
 #---------------------------------- Content ---------------------------------#
-
-#begin Fonts/MainFont.fnt
-/importer:BitmapFontImporter
-/processor:BitmapFontProcessor
-/build:Fonts/MainFont.fnt
-
-#begin Fonts/MainFont_0.png
-/importer:TextureImporter
-/processor:TextureProcessor
-/processorParam:ColorKeyColor=255,0,255,255
-/processorParam:ColorKeyEnabled=True
-/processorParam:GenerateMipmaps=False
-/processorParam:PremultiplyAlpha=True
-/processorParam:ResizeToPowerOfTwo=False
-/processorParam:MakeSquare=False
-/processorParam:TextureFormat=Color
-/build:Fonts/MainFont_0.png
 
 #begin Images/Tileset_Field.png
 /importer:TextureImporter
