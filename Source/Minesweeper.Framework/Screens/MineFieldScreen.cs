@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Globalization;
 using System.Linq;
 using ImGuiNET;
 using Microsoft.Xna.Framework;
@@ -8,6 +9,7 @@ using Minesweeper.Framework.ImGUI;
 using Minesweeper.Framework.Inputs;
 using Minesweeper.Framework.MinePutters;
 using MonoGame.Extended;
+using MonoGame.Extended.BitmapFonts;
 using MonoGame.Extended.Input.InputListeners;
 using MonoGame.Extended.Screens;
 
@@ -23,14 +25,17 @@ namespace Minesweeper.Framework.Screens
         private Texture2D[] _textures;
         private Vector2 _lastCameraPos;
         private ImGuiRenderer _imGuiRenderer;
+        private BitmapFont _mainFont;
 
-        private bool _lose;
+        private bool _lose = false;
+        private bool _isGameStarted = false;
         private Color _loseColor = Color.Red * 0.01f;
 
         private int _fieldWidth = 9;
         private int _fieldHeight = 9;
         private int _totalMines = 15;
         private int _minePutterDifficulty = (int) MinePutterDifficulty.Easy;
+        private double _secondsElapsed = 0;
 
         public MineFieldScreen(Game game) 
             : base(game)
@@ -62,6 +67,7 @@ namespace Minesweeper.Framework.Screens
             _spriteBatch = new SpriteBatch(GraphicsDevice);
 
             _tilesetTexture = Content.Load<Texture2D>("Images/Tileset_Field");
+            _mainFont = Content.Load<BitmapFont>("Fonts/MainFont");
 
             _fieldRenderer = new MineFieldRenderer(_field, GraphicsDevice, _tilesetTexture);
 
@@ -100,7 +106,14 @@ namespace Minesweeper.Framework.Screens
                     {*/
                     var res = _field.RevealAt((int)mousePos.X / _field.CellSize, (int)mousePos.Y / _field.CellSize);
                     if (res)
+                    {
                         _lose = true;
+                        _isGameStarted = false;
+                    }
+                    else
+                    {
+                        _isGameStarted = true;
+                    }
                     // }
                     
                     _lastCameraPos = _camera.Position;
@@ -129,6 +142,9 @@ namespace Minesweeper.Framework.Screens
                 if (_camera.Zoom > 0.3f)
                     _camera.ZoomOut(0.05f);
             }
+
+            if (_isGameStarted)
+                _secondsElapsed += gameTime.ElapsedGameTime.TotalSeconds;
         }
 
         public override void Draw(GameTime gameTime)
@@ -163,6 +179,13 @@ namespace Minesweeper.Framework.Screens
             
             _spriteBatch.End();
             
+            /*_spriteBatch.Begin();
+            
+            _spriteBatch.FillRectangle(Vector2.Zero, new Size2(GraphicsDevice.Viewport.Width, 48), Color.DarkGray);
+            _spriteBatch.DrawString(_mainFont, _secondsElapsed.ToString("F0", CultureInfo.InvariantCulture), Vector2.One, Color.Black);
+            
+            _spriteBatch.End();*/
+            
             RenderImGuiLayout(gameTime);
         }
 
@@ -172,11 +195,13 @@ namespace Minesweeper.Framework.Screens
             bool useRecursiveOpen = _field.UseRecursiveOpen;
 
             ImGui.Begin("Game Settings");
+            ImGui.Text($"TIME: {_secondsElapsed.ToString("F1", CultureInfo.InvariantCulture)}");
             ImGui.Text($"Total Mines: {_field.TotalMines}");
             ImGui.Text($"Total Cells: {_field.TotalCells}");
             ImGui.Text($"Field Resolution: {_field.Width}x{_field.Height}");
             ImGui.Text($"Mines Left: {_field.MinesLeft}");
             ImGui.Text($"Free cells: {_field.FreeCellsLeft}");
+            ImGui.Text($"Total open cells: {_field.TotalOpenCells}");
             
             ImGui.Checkbox($"Use recursive open", ref useRecursiveOpen);
             ImGui.SameLine();
@@ -267,6 +292,8 @@ namespace Minesweeper.Framework.Screens
         private void Start()
         {
             _lose = false;
+            _isGameStarted = false;
+            _secondsElapsed = 0;
             _loseColor = Color.Red * 0.01f;
             _field = new MineField(_fieldWidth, _fieldHeight, _totalMines, true, (MinePutterDifficulty) _minePutterDifficulty);
             _fieldRenderer = new MineFieldRenderer(_field, GraphicsDevice, _tilesetTexture);
