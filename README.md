@@ -12,15 +12,29 @@ A minesweeper-like game
 - [x] Flags
 - [x] Simple UI using ImGUI
 - [x] Generate mines after first open cell
-- [x] Easy mine generator (guaranteed that there will be no mines at the starting 3x3 square)
+- [x] Easy mine generator (guaranteed that there will be no mines at the starting 3x3 square), maybe should reconsider the save field size
 - [x] Open appropriate cells after clicking on a free cell with the number value
 - [x] Add Timer
 - [x] Add warnings if there are more flags around a cell than its number value
 - [x] Show cells player tries to open 
+- [ ] Fix known (and unknown) bugs:
+  - [ ] Mine field is empty after undoing the first action (on mine generation basically)
+  - [ ] Game time accumulates incorrectly
+  - [ ] Undo doesn't allow player to open cells if he caught a mine
+  - [ ] The mine field is zooming if scrolling ImGUI windows
+  - [ ] The grid which is drawn after clicking on any cell is pretty ugly
+  - [ ] Restart doesn't work properly
+  - [ ] Redo doesn't work at all
+- [ ] Implement auto flagging if there is an obvious pattern
+- [ ] Make seeds work as expected
 - [ ] Open appropriate cells recursively 
+- [ ] Add local scores (SQLite will work well)
 - [ ] Guess-free minefield generation
+- [ ] Implement calculation of [3BV](http://www.stephan-bechtel.de/3bv.htm)
+- [ ] Add saveable replays
 - [ ] More game settings
 - [ ] Better UI
+- [ ] Add online scores
 - [ ] Android version
 
 ## Dev Notes
