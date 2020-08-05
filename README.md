@@ -1,12 +1,33 @@
 # Minesweeper
 
-A minesweeper-like game
+A minesweeper-like game written in C# using MonoGame.
+
+## Build
+
+In order to build the DesktopGL version of the project as well as the minesweeper framework, you'll need `.NET Core 3.1` or higher. Also you'll need [MonoGame](https://monogame.net) installed in order to build the game content. All the other required packages are referenced via NuGet:
+
+ - ImGUI.NET
+ - MonoGame.Extended
+
+As soon as MonoGame and .NET Core are installed, go to the `./Source` directory and either run
+
+```powershell
+dotnet build 
+```
+
+to build Minesweeper, or
+
+```powershell
+dotnet run --project .\Minesweeper.DesktopGL\Minesweeper.DesktopGL.csproj
+```
+
+to run DesktopGL version of Minesweeper. You can also run Visual Studio and open `Minesweeper.sln`.
 
 ## Screenshot
 
-![Gameplay Example](./Images/Screenshot_Gameplay.png)
+![Gameplay Example](./Images/Screenshot_Gameplay_V2.png)
 
-## TODO
+## TODO and current roadmap
 
 - [x] Simple minefield generation
 - [x] Flags
@@ -25,6 +46,8 @@ A minesweeper-like game
   - [ ] The grid which is drawn after clicking on any cell is pretty ugly
   - [ ] Restart doesn't work properly
   - [ ] Redo doesn't work at all
+  - [ ] Solve function works incorrectly
+  - [ ] **You cannot win in current version**
 - [ ] Implement auto flagging if there is an obvious pattern
 - [ ] Make seeds work as expected
 - [ ] Open appropriate cells recursively 
