@@ -36,6 +36,7 @@ A minesweeper-like game
 - [ ] Better UI
 - [ ] Add online scores
 - [ ] Android version
+- [ ] WebGL version
 
 ## Dev Notes
 
