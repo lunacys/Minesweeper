@@ -1,6 +1,8 @@
-﻿namespace Minesweeper.Framework
+﻿using System;
+
+namespace Minesweeper.Framework
 {
-    public class FieldCell
+    public class FieldCell : ICloneable
     {
         public FieldCellType Type { get; set; }
         public int MinesAround { get; set; }
@@ -17,6 +19,16 @@
         {
             Type = type;
             MinesAround = minesAround;
+        }
+
+        public object Clone()
+        {
+            return new FieldCell(Type, MinesAround)
+            {
+                IsOpen = IsOpen,
+                IsFlagged = IsFlagged,
+                IsWarned = IsWarned
+            };
         }
     }
 }

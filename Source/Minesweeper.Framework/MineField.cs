@@ -1,7 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Drawing;
 using Microsoft.Xna.Framework;
 using Minesweeper.Framework.MinePutters;
+using Point = Microsoft.Xna.Framework.Point;
 
 namespace Minesweeper.Framework
 {
@@ -141,26 +143,27 @@ namespace Minesweeper.Framework
             }
         }
 
-        public bool RevealAt(int x, int y, bool overrideRecursion = false)
+        public PlayerTurnSnapshot RevealAt(int x, int y, bool overrideRecursion = false)
         {
             if (MinesLeft == 0 && FreeCellsLeft == 0)
-                return false;
+                return null;
 
             if (y < 0 || y >= Height || x < 0 || x >= Width)
-                return false;
+                return null;
 
             var cell = Cells[y, x];
+            var oldState = (FieldCell) cell.Clone();
 
             if (_isFirstTurn)
             {
                 var count = _minePutter.PutMines(this, x, y);
-                Console.WriteLine(count);
                 RebuildOpenCells();
                 _isFirstTurn = false;
             }
 
             if (cell.IsFlagged)
-                return false;
+                return null;
+            
             if (cell.IsOpen)
             {
                 if (UseRecursiveOpen && !_isFirstTurn && !overrideRecursion)
@@ -180,11 +183,11 @@ namespace Minesweeper.Framework
                         RevealAt(x, y + 1, true);
                     }
                     
-                    return false;
+                    return null;
                 }
                 else
                 {
-                    return false;
+                    return null;
                 }
             }
 
@@ -193,7 +196,7 @@ namespace Minesweeper.Framework
             Changed?.Invoke(this, EventArgs.Empty);
 
             if (cell.IsMine)
-                return true;
+                return new PlayerTurnSnapshot(new Point(x, y), cell, oldState);
 
             TotalOpenCells++;
 
@@ -210,21 +213,23 @@ namespace Minesweeper.Framework
                 RevealAt(x, y + 1);
             }
 
-            return cell.IsMine;
+            return new PlayerTurnSnapshot(new Point(x, y), cell, oldState);
         }
 
-        public void FlagAt(int x, int y)
+        public PlayerTurnSnapshot FlagAt(int x, int y)
         {
             if (MinesLeft == 0 && FreeCellsLeft == 0)
-                return;
+                return null;
             
             if (x < 0 || x >= Width || y < 0 || y >= Height)
-                return;
+                return null;
             
             var cell = Cells[y, x];
 
             if (cell.IsOpen)
-                return;
+                return null;
+
+            var oldCell = (FieldCell) cell.Clone();
 
             if (cell.IsFlagged)
             {
@@ -240,6 +245,8 @@ namespace Minesweeper.Framework
             CheckCellsAroundForFlags(x, y);
             
             Changed?.Invoke(this, EventArgs.Empty);
+            
+            return new PlayerTurnSnapshot(new Point(x, y), cell, oldCell);
         }
 
         public IEnumerable<Vector2> GetSuitableCellPositionsAt(int x, int y)
@@ -266,12 +273,34 @@ namespace Minesweeper.Framework
 
         public void RestoreFromSnapshot(MineFieldSnapshot snapshot)
         {
-            Cells = snapshot.Cells;
+            Cells = CloneCells(snapshot.Cells);
             MinesLeft = snapshot.MinesLeft;
             FreeCellsLeft = snapshot.FreeCellsLeft;
             TotalOpenCells = snapshot.TotalOpenCells;
             
             Changed?.Invoke(this, EventArgs.Empty);
+        }
+
+        public MineFieldSnapshot CreateSnapshot()
+        {
+            return new MineFieldSnapshot(CloneCells(Cells), MinesLeft, FreeCellsLeft, TotalOpenCells);
+        }
+
+        private FieldCell[,] CloneCells(FieldCell[,] oldCells)
+        {
+            var cells = new FieldCell[Height, Width];
+            
+            for (int i = 0; i < Height; i++)
+            {
+                for (int j = 0; j < Width; j++)
+                {
+                    var cell = oldCells[i, j];
+
+                    cells[i, j] = (FieldCell)cell.Clone();
+                }
+            }
+
+            return cells;
         }
 
         private void CheckCellsAroundForFlags(int x, int y)
