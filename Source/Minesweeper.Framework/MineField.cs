@@ -283,8 +283,6 @@ namespace Minesweeper.Framework
             {
                 return GetSuitableCellsAround(x, y);
             }
-
-            return list;
         }
 
         public void RestoreFromSnapshot(MineFieldSnapshot snapshot)

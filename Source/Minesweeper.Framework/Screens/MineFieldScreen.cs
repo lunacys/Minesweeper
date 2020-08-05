@@ -10,8 +10,6 @@ using Minesweeper.Framework.ImGUI;
 using Minesweeper.Framework.Inputs;
 using Minesweeper.Framework.MinePutters;
 using MonoGame.Extended;
-using MonoGame.Extended.BitmapFonts;
-using MonoGame.Extended.Input.InputListeners;
 using MonoGame.Extended.Screens;
 
 namespace Minesweeper.Framework.Screens
