@@ -2,6 +2,8 @@
 
 A minesweeper-like game written in C# using MonoGame.
 
+The game is inspired by [Mines](https://www.chiark.greenend.org.uk/~sgtatham/puzzles/js/mines.html) from Simon Tatham's Portable Puzzle Collection.
+
 ## Build
 
 In order to build the DesktopGL version of the project as well as the minesweeper framework, you'll need `.NET Core 3.1` or higher. Also you'll need [MonoGame](https://monogame.net) installed in order to build the game content. All the other required packages are referenced via NuGet:
