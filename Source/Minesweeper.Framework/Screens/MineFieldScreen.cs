@@ -255,6 +255,8 @@ namespace Minesweeper.Framework.Screens
             ImGui.Text($"Mines Left: {_field.MinesLeft}");
             ImGui.Text($"Free cells: {_field.FreeCellsLeft}");
             ImGui.Text($"Total open cells: {_field.TotalOpenCells}");
+            /*int seed = _field.Seed;
+            ImGui.InputInt("Seed", ref seed, 1, 10);*/
             
             ImGui.Checkbox($"Use recursive open", ref useRecursiveOpen);
             ImGui.SameLine();
@@ -298,8 +300,9 @@ namespace Minesweeper.Framework.Screens
             ImGui.SetNextItemWidth(ImGui.GetFontSize() * 6f);
             ImGui.InputInt("Total Mines", ref _totalMines);
             ImGui.SetNextItemWidth(ImGui.GetFontSize() * 8f);
+            var names = Enum.GetNames(typeof(MinePutterDifficulty)); 
             ImGui.ListBox("Mine Putter Difficulty", ref _minePutterDifficulty,
-                Enum.GetNames(typeof(MinePutterDifficulty)), 3);
+                names, names.Length);
             
             if (ImGui.Button("Submit"))
             {
@@ -345,6 +348,10 @@ namespace Minesweeper.Framework.Screens
             _imGuiRenderer.AfterLayout();
 
             _field.UseRecursiveOpen = useRecursiveOpen;
+            /*if (_field.Seed != seed)
+            {
+                _field.Seed = seed;
+            }*/
         }
 
         private void UndoTurn(Tuple<MineFieldSnapshot, PlayerTurnSnapshot> snapshot, int turnId)

@@ -4,9 +4,7 @@ namespace Minesweeper.Framework.MinePutters
 {
     public class MinePutterRandom : IMinePutter
     {
-        private Random _random = new Random();
-        
-        public int PutMines(MineField mineField, int clickCellX, int clickCellY)
+        public int PutMines(MineField mineField, int clickCellX, int clickCellY, Random random)
         {
             int generatedMines = 0;
             
@@ -20,7 +18,7 @@ namespace Minesweeper.Framework.MinePutters
                             continue;
 
                         if (mineField.Cells[i, j].Type != FieldCellType.Mine 
-                            && _random.Next(1, mineField.Height * mineField.Width) == 1)
+                            && random.Next(1, mineField.Height * mineField.Width) == 1)
                         {
                             mineField.Cells[i, j].Type = FieldCellType.Mine;
                             generatedMines++;

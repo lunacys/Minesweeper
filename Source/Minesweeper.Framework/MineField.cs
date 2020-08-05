@@ -9,7 +9,23 @@ namespace Minesweeper.Framework
 {
     public class MineField
     {
+        public Random Random { get; private set; }
+        private int? _seed;
+        public int Seed
+        {
+            get
+            {
+                if (!_seed.HasValue)
+                    _seed = (int)GetCurrentUnixTimestampSeconds();
 
+                return _seed.Value;
+            }
+            set
+            {
+                _seed = value;
+                Random = new Random(_seed.Value);
+            } 
+        }
         public FieldCell[,] Cells { get; private set; }
         public int TotalMines { get;}
         public int Width { get; }
@@ -34,6 +50,8 @@ namespace Minesweeper.Framework
             Height = height;
             IsResolvable = isResolvable;
             TotalMines = totalMines;
+            // Seed = (int) GetCurrentUnixTimestampSeconds();
+            Random = new Random();
             _minePutter = new MinePutterFactory().Generate(minePutterDifficulty);
 
             if (width <= 0)
@@ -150,16 +168,16 @@ namespace Minesweeper.Framework
 
             if (y < 0 || y >= Height || x < 0 || x >= Width)
                 return null;
-
-            var cell = Cells[y, x];
-            var oldState = (FieldCell) cell.Clone();
-
+            
             if (_isFirstTurn)
             {
-                var count = _minePutter.PutMines(this, x, y);
+                var count = _minePutter.PutMines(this, x, y, Random);
                 RebuildOpenCells();
                 _isFirstTurn = false;
             }
+            
+            var cell = Cells[y, x];
+            var oldState = (FieldCell) cell.Clone();
 
             if (cell.IsFlagged)
                 return null;
@@ -195,10 +213,8 @@ namespace Minesweeper.Framework
             FreeCellsLeft--;
             Changed?.Invoke(this, EventArgs.Empty);
 
-            if (cell.IsMine)
-                return new PlayerTurnSnapshot(new Point(x, y), cell, oldState);
-
-            TotalOpenCells++;
+            if (!cell.IsMine)
+                TotalOpenCells++;
 
             if (cell.MinesAround == 0)
             {
@@ -373,6 +389,29 @@ namespace Minesweeper.Framework
             }
 
             return flagsAround;
+        }
+        
+        private static readonly DateTime UnixEpoch =
+            new DateTime(1970, 1, 1, 0, 0, 0, DateTimeKind.Utc);
+
+        public static long GetCurrentUnixTimestampMillis()
+        {
+            return (long) (DateTime.UtcNow - UnixEpoch).TotalMilliseconds;
+        }
+
+        public static DateTime DateTimeFromUnixTimestampMillis(long millis)
+        {
+            return UnixEpoch.AddMilliseconds(millis);
+        }
+
+        public static long GetCurrentUnixTimestampSeconds()
+        {
+            return (long) (DateTime.UtcNow - UnixEpoch).TotalSeconds;
+        }
+
+        public static DateTime DateTimeFromUnixTimestampSeconds(long seconds)
+        {
+            return UnixEpoch.AddSeconds(seconds);
         }
     }
 }

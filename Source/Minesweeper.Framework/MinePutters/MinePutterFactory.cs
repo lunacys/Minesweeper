@@ -11,6 +11,7 @@ namespace Minesweeper.Framework.MinePutters
                 case MinePutterDifficulty.Random: return new MinePutterRandom();
                 case MinePutterDifficulty.Hard: return new MinePutterHard();
                 case MinePutterDifficulty.Easy: return new MinePutterEasy();
+                case MinePutterDifficulty.Cheat: return new MinePutterCheat();
                 default:
                     throw new ArgumentOutOfRangeException(nameof(difficulty), difficulty, null);
             }

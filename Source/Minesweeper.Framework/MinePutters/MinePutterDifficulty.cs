@@ -4,6 +4,7 @@ namespace Minesweeper.Framework.MinePutters
     {
         Random,
         Hard,
-        Easy
+        Easy,
+        Cheat
     }
 }
