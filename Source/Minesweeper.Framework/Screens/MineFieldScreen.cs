@@ -33,6 +33,7 @@ namespace Minesweeper.Framework.Screens
 
         private ICommand _leftMouseButtonCommand = new NullCommand();
         private ICommand _rightMouseButtonCommand = new NullCommand();
+        private ICommand _middleMouseButtonCommand = new NullCommand();
 
         private PlayerTurnsContainer _playerTurnsContainer;
 
@@ -63,6 +64,7 @@ namespace Minesweeper.Framework.Screens
         {
             _leftMouseButtonCommand = new RevealCellCommand(_field, _camera, _playerTurnsContainer);
             _rightMouseButtonCommand = new PlaceFlagCommand(_field, _camera, _playerTurnsContainer);
+            _middleMouseButtonCommand = new MoveCameraCommand(_camera);
         }
 
         public override void LoadContent()
@@ -101,7 +103,7 @@ namespace Minesweeper.Framework.Screens
         {
             if (InputManager.IsMouseButtonDown(MouseButton.Middle))
             {
-                _camera.Move(-InputManager.MouseVelocity / _camera.Zoom);
+                _middleMouseButtonCommand.Execute(_secondsElapsed);
                 Mouse.SetCursor(MouseCursor.SizeAll);
             }
             else
