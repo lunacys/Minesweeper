@@ -1,3 +1,5 @@
+using Minesweeper.Framework.GameStateManagement;
+
 namespace Minesweeper.Framework
 {
     public class PlayerTurnData
@@ -6,18 +8,21 @@ namespace Minesweeper.Framework
         public PlayerTurnSnapshot PlayerTurnSnapshot { get; }
         public string Description { get; }
         public float Time { get; }
+        public GameState GameState { get; }
 
         public PlayerTurnData(
             MineFieldSnapshot mineFieldSnapshot,
             PlayerTurnSnapshot playerTurnSnapshot,
             string description,
-            float time
+            float time,
+            GameState gameState
         )
         {
             MineFieldSnapshot = mineFieldSnapshot;
             PlayerTurnSnapshot = playerTurnSnapshot;
             Description = description;
             Time = time;
+            GameState = gameState;
         }
 
         public override string ToString()

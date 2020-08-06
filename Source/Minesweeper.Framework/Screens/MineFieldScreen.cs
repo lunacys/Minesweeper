@@ -4,6 +4,7 @@ using ImGuiNET;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
+using Minesweeper.Framework.GameStateManagement;
 using Minesweeper.Framework.ImGUI;
 using Minesweeper.Framework.Inputs;
 using Minesweeper.Framework.MinePutters;
@@ -20,16 +21,15 @@ namespace Minesweeper.Framework.Screens
         private MineField _field;
         private MineFieldRenderer _fieldRenderer;
         private ImGuiRenderer _imGuiRenderer;
+        private GameStateManager _gameStateManager;
+        private GameTimeHandler _gameTimeHandler;
 
-        private bool _lose = false;
-        private bool _isGameStarted = false;
         private Color _loseColor = Color.Red * 0.01f;
 
         private int _fieldWidth = 9;
         private int _fieldHeight = 9;
         private int _totalMines = 15;
         private int _minePutterDifficulty = (int) MinePutterDifficulty.Easy;
-        private float _secondsElapsed = 0;
 
         private ICommand _leftMouseButtonCommand = new NullCommand();
         private ICommand _rightMouseButtonCommand = new NullCommand();
@@ -41,6 +41,9 @@ namespace Minesweeper.Framework.Screens
             : base(game)
         {
             _field = new MineField(9, 9, 15, true, MinePutterDifficulty.Easy);
+            
+            _gameStateManager = new GameStateManager();
+            _gameTimeHandler = new GameTimeHandler(_gameStateManager);
         }
 
         public override void Initialize()
@@ -54,7 +57,7 @@ namespace Minesweeper.Framework.Screens
             _camera.LookAt(new Vector2(GraphicsDevice.Viewport.Width / 2.0f, GraphicsDevice.Viewport.Height / 2.0f));
             _camera.Zoom = 0.5f;
 
-            _playerTurnsContainer = new PlayerTurnsContainer(_field);
+            _playerTurnsContainer = new PlayerTurnsContainer(_field, _gameStateManager);
             SetUpCommands();
 
             base.Initialize();
@@ -86,24 +89,22 @@ namespace Minesweeper.Framework.Screens
         {
             HandleInput();
 
-            if (_lose)
+            if (_gameStateManager.HasLost)
             {
-                // if (_loseColor.A < 100)
                 double time = gameTime.TotalGameTime.TotalSeconds;
                 float pulsate = (float) Math.Sin(time * 8) + 1;
                 
                 _loseColor = new Color(0 + pulsate * 0.25f, 0f, 0f, 0 + pulsate * 0.25f);
             }
 
-            if (_isGameStarted && !_lose)
-                _secondsElapsed += (float)gameTime.ElapsedGameTime.TotalSeconds;
+            _gameTimeHandler.Update(gameTime);
         }
 
         private void HandleInput()
         {
             if (InputManager.IsMouseButtonDown(MouseButton.Middle))
             {
-                _middleMouseButtonCommand.Execute(_secondsElapsed);
+                _middleMouseButtonCommand.Execute(_gameTimeHandler.SecondsElapsed);
                 Mouse.SetCursor(MouseCursor.SizeAll);
             }
             else
@@ -111,23 +112,30 @@ namespace Minesweeper.Framework.Screens
                 Mouse.SetCursor(MouseCursor.Arrow);
             }
             
-            if (!_lose)
+            if (_gameStateManager.IsPlaying || _gameStateManager.IsNewGame)
             {
                 if (InputManager.WasMouseButtonReleased(MouseButton.Right))
                 {
-                    _rightMouseButtonCommand.Execute(_secondsElapsed);
+                    _rightMouseButtonCommand.Execute(_gameTimeHandler.SecondsElapsed);
                 }
 
                 if (InputManager.WasMouseButtonReleased(MouseButton.Left))
                 {
-                    var snapshot = _leftMouseButtonCommand.Execute(_secondsElapsed);
+                    var fieldSnapshot = _field.CreateSnapshot();
+                    var snapshot = _leftMouseButtonCommand.Execute(_gameTimeHandler.SecondsElapsed);
                     if (snapshot != null)
                     {
-                        _isGameStarted = true;
+                        if (!_gameStateManager.IsPlaying)
+                            _gameStateManager.CurrentState = GameState.Playing;
 
                         if (snapshot.NewCellState.IsMine && snapshot.NewCellState.IsOpen)
                         {
-                            _lose = true;
+                            _gameStateManager.CurrentState = GameState.Lost;
+                        }
+                        else if (_field.FreeCellsLeft == 0)
+                        {
+                            _gameStateManager.CurrentState = GameState.Won;
+                            _playerTurnsContainer.AddTurn(fieldSnapshot, snapshot, "Won!", _gameTimeHandler.SecondsElapsed);
                         }
                     }
                 }
@@ -136,7 +144,7 @@ namespace Minesweeper.Framework.Screens
             if (InputManager.WasKeyPressed(Keys.Space))
             {
                 _field.Generate();
-                _lose = false;
+                _gameStateManager.CurrentState = GameState.NewGame;
                 _loseColor = Color.Red * 0.01f;
             }
 
@@ -167,7 +175,8 @@ namespace Minesweeper.Framework.Screens
 
             var mousePos = _camera.ScreenToWorld(InputManager.MousePosition);
             
-            if (!_lose &&
+            if ((_gameStateManager.CurrentState == GameState.Playing ||
+                 _gameStateManager.CurrentState == GameState.NewGame) &&
                 mousePos.X > 0 &&
                 mousePos.Y > 0 &&
                 mousePos.X < _field.Width * _field.CellSize &&
@@ -193,7 +202,7 @@ namespace Minesweeper.Framework.Screens
                 }
             }
 
-            if (_lose)
+            if (_gameStateManager.HasLost)
             {
                 _spriteBatch.FillRectangle(Vector2.Zero, new Size2(_field.Width * _field.CellSize, _field.Height * _field.CellSize), _loseColor);
             }
@@ -243,7 +252,7 @@ namespace Minesweeper.Framework.Screens
             ImGui.End();
 
             ImGui.Begin("Game Settings");
-            ImGui.Text($"TIME: {_secondsElapsed.ToString("F1", CultureInfo.InvariantCulture)}");
+            ImGui.Text($"TIME: {_gameTimeHandler.SecondsElapsed.ToString("F1", CultureInfo.InvariantCulture)}");
             ImGui.Text($"Total Mines: {_field.TotalMines}");
             ImGui.Text($"Total Cells: {_field.TotalCells}");
             ImGui.Text($"Field Resolution: {_field.Width}x{_field.Height}");
@@ -353,9 +362,7 @@ namespace Minesweeper.Framework.Screens
         {
             var snapshot = _field.CreateSnapshot();
             _playerTurnsContainer.AddTurn(snapshot, null, "Started a new game", 0);
-            _lose = false;
-            _isGameStarted = false;
-            _secondsElapsed = 0;
+            _gameStateManager.CurrentState = GameState.NewGame;
             _loseColor = Color.Red * 0.01f;
             _field = new MineField(_fieldWidth, _fieldHeight, _totalMines, true, (MinePutterDifficulty) _minePutterDifficulty);
             _fieldRenderer = new MineFieldRenderer(_field, GraphicsDevice, _tilesetTexture);

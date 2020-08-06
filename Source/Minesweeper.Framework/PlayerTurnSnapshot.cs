@@ -1,4 +1,5 @@
 ﻿using Microsoft.Xna.Framework;
+using Minesweeper.Framework.GameStateManagement;
 
 namespace Minesweeper.Framework
 {
@@ -7,6 +8,7 @@ namespace Minesweeper.Framework
         public Point Position { get; }
         public FieldCell NewCellState { get; }
         public FieldCell OldCellState { get; }
+        public GameState GameState { get; }
 
         public PlayerTurnSnapshot(Point position, FieldCell newCellState, FieldCell oldCellState)
         {

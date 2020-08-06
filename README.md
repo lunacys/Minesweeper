@@ -41,15 +41,15 @@ to run DesktopGL version of Minesweeper. You can also run Visual Studio and open
 - [x] Add warnings if there are more flags around a cell than its number value
 - [x] Show cells player tries to open 
 - [ ] Fix known (and unknown) bugs:
-  - [ ] Mine field is empty after undoing the first action (on mine generation basically)
-  - [ ] Game time accumulates incorrectly
-  - [ ] Undo doesn't allow player to open cells if he caught a mine
+  - [x] Mine field is empty after undoing the first action (on mine generation basically)
+  - [x] Game time accumulates incorrectly
+  - [x] Undo doesn't allow player to open cells if he caught a mine
   - [ ] The mine field is zooming if scrolling ImGUI windows
   - [ ] The grid which is drawn after clicking on any cell is pretty ugly
   - [ ] Restart doesn't work properly
   - [ ] Redo doesn't work at all
   - [ ] Solve function works incorrectly
-  - [ ] **You cannot win in current version**
+  - [x] **You cannot win in current version**
 - [ ] Implement auto flagging if there is an obvious pattern
 - [ ] Make seeds work as expected
 - [ ] Open appropriate cells recursively 
