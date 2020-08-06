@@ -107,7 +107,7 @@ namespace Minesweeper.Framework
                     if (cell.Type != FieldCellType.Mine && cell.IsOpen)
                     {
                         // Drawing an outline rectangle
-                        _spriteBatch.DrawRectangle(pos, new Size2(64, 64), Color.Gray);
+                        _spriteBatch.DrawRectangle(pos, new Size2(MineField.CellSize, MineField.CellSize), Color.Gray);
                     }
                 }
             }

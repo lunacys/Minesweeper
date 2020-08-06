@@ -42,7 +42,7 @@ namespace Minesweeper.Framework
 
         public event EventHandler Changed;
 
-        public int CellSize => 64;
+        public int CellSize => 100;
 
         public MineField(int width, int height, int totalMines, bool isResolvable, MinePutterDifficulty minePutterDifficulty)
         {
