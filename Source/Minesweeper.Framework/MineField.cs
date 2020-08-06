@@ -271,13 +271,38 @@ namespace Minesweeper.Framework
             MinesLeft = snapshot.MinesLeft;
             FreeCellsLeft = snapshot.FreeCellsLeft;
             TotalOpenCells = snapshot.TotalOpenCells;
+            // CHECK: Do we need to restore the other params? (width, height, etc)
             
             Changed?.Invoke(this, EventArgs.Empty);
         }
 
+        public static MineField CreateFromSnapshot(MineFieldSnapshot snapshot)
+        {
+            var mineField = new MineField(
+                snapshot.Width,
+                snapshot.Height,
+                snapshot.TotalMines,
+                snapshot.IsResolvable,
+                snapshot.MinePutterDifficulty
+            );
+            
+            mineField.RestoreFromSnapshot(snapshot);
+
+            return mineField;
+        }
+
         public MineFieldSnapshot CreateSnapshot()
         {
-            return new MineFieldSnapshot(CloneCells(Cells), MinesLeft, FreeCellsLeft, TotalOpenCells);
+            return new MineFieldSnapshot(
+                CloneCells(Cells),
+                MinesLeft, 
+                FreeCellsLeft, 
+                TotalOpenCells,
+                Width,
+                Height,
+                TotalMines,
+                IsResolvable,
+                _minePutter.Difficulty);
         }
 
         private FieldCell[,] CloneCells(FieldCell[,] oldCells)

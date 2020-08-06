@@ -4,6 +4,8 @@ namespace Minesweeper.Framework.MinePutters
 {
     public class MinePutterHard : IMinePutter
     {
+        public MinePutterDifficulty Difficulty => MinePutterDifficulty.Hard;
+
         public int PutMines(MineField mineField, int clickCellX, int clickCellY, Random random)
         {
             var generatedMines = 0;
