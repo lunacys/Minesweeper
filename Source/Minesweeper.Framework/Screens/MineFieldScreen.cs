@@ -286,16 +286,25 @@ namespace Minesweeper.Framework.Screens
                 ImGui.SameLine();
                 if (ImGui.Button("Redo"))
                 {
-                    // TODO: Redo
+                    _playerTurnsContainer.RedoTurn();
                 }                
             }
-            
-            ImGui.SameLine();
-            if (ImGui.Button("Solve"))
+
+            if (_gameStateManager.CurrentState != GameState.NewGame)
             {
-                _field.Solve();
+                ImGui.SameLine();
+                if (ImGui.Button("Solve"))
+                {
+                    var snapshot = _field.CreateSnapshot();
+                    _field.Solve();
+                    _playerTurnsContainer.AddTurn(
+                        snapshot, null, "Solved the board automatically",
+                        _gameTimeHandler.SecondsElapsed
+                    );
+                    _gameStateManager.CurrentState = GameState.Won;
+                }    
             }
-            
+
             ImGui.Separator();
             ImGui.SetNextItemWidth(ImGui.GetFontSize() * 6f);
             ImGui.InputInt("Field Width", ref _fieldWidth);

@@ -35,6 +35,11 @@ namespace Minesweeper.Framework
             UndoTurn(_playerTurns.Count - 1);
         }
 
+        public void RedoTurn()
+        {
+            throw new NotImplementedException();
+        }
+
         public void UndoTurn(int turnId)
         {
             var turn = _playerTurns[turnId];
