@@ -344,3 +344,5 @@ tools/
 Source/*.Deprecated/
 
 #Source/Minesweeper.Android/
+
+./References/
