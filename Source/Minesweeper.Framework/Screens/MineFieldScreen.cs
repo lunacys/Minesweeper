@@ -276,13 +276,16 @@ namespace Minesweeper.Framework.Screens
                 _field.Reset();
             }
 
-            if (_playerTurnsContainer.PlayerTurns.Count > 1)
+            if (_playerTurnsContainer.IsUndoAvailable)
             {
                 ImGui.SameLine();
                 if (ImGui.Button("Undo"))
                 {
                     _playerTurnsContainer.UndoTurn();
                 }
+            }
+            if (_playerTurnsContainer.IsRedoAvailable)
+            {
                 ImGui.SameLine();
                 if (ImGui.Button("Redo"))
                 {

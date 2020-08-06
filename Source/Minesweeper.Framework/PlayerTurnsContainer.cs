@@ -1,18 +1,21 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using Minesweeper.Framework.GameStateManagement;
 
 namespace Minesweeper.Framework
 {
     public class PlayerTurnsContainer
     {
-        private List<PlayerTurnData> _playerTurns =
-            new List<PlayerTurnData>();
+        private List<PlayerTurnData> _playerTurns = new List<PlayerTurnData>();
+        private List<PlayerTurnData> _undoneTurns = new List<PlayerTurnData>();
 
         public List<PlayerTurnData> PlayerTurns => _playerTurns;
         
         public MineField MineField { get; set; }
         public GameStateManager GameStateManager { get; }
+        public bool IsUndoAvailable => _playerTurns.Count > 0;
+        public bool IsRedoAvailable => _undoneTurns.Count > 0;
 
         public PlayerTurnsContainer(MineField mineField, GameStateManager gameStateManager)
         {
@@ -37,7 +40,10 @@ namespace Minesweeper.Framework
 
         public void RedoTurn()
         {
-            throw new NotImplementedException();
+            var lastTurn = _undoneTurns.Last();
+            MineField.RestoreFromSnapshot(lastTurn.MineFieldSnapshot);
+            AddTurn(lastTurn.MineFieldSnapshot, lastTurn.PlayerTurnSnapshot, lastTurn.Description, lastTurn.Time);
+            _undoneTurns.RemoveAt(_undoneTurns.Count - 1);
         }
 
         public void UndoTurn(int turnId)
@@ -48,6 +54,7 @@ namespace Minesweeper.Framework
             {
                 GameStateManager.CurrentState = turn.GameState;
             }
+            _undoneTurns.Add(turn);
             _playerTurns.RemoveAt(turnId);
         }
     }
