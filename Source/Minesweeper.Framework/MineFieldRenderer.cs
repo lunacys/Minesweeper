@@ -8,31 +8,41 @@ namespace Minesweeper.Framework
     {
         private class TextureResolver
         {
-            private Texture2D[] _textures;
+            private Rectangle[] _rectangles;
+            private int _tileCountW;
+            private int _tileCountH;
 
             public TextureResolver(Texture2D tileSet, int tileWidth, int tileHeight)
             {
-                _textures = new Texture2D[4 * 3];
+                _tileCountW = tileSet.Width / tileWidth;
+                _tileCountH = tileSet.Height / tileHeight;
 
-                for (int i = 0; i < 4; i++)
+                _rectangles = new Rectangle[_tileCountW * _tileCountH];
+
+                for (int i = 0; i < _tileCountW; i++)
                 {
-                    for (int j = 0; j < 3; j++)
+                    for (int j = 0; j < _tileCountH; j++)
                     {
-                        _textures[i + 4 * j] = tileSet.Crop(i * tileWidth, j * tileHeight, tileWidth, tileHeight);
+                        _rectangles[i + _tileCountW * j] = new Rectangle(
+                            i * tileWidth,
+                            j * tileHeight,
+                            tileWidth,
+                            tileHeight
+                        );
                     }
                 }
             }
 
-            public Texture2D ResolveForCell(FieldCell cell)
+            public Rectangle GetSourceRectForCell(FieldCell cell)
             {
                 if (cell.IsFlagged)
-                    return _textures[4 * 3 - 2];
+                    return _rectangles[_tileCountW * _tileCountH - 2];
                 if (!cell.IsOpen)
-                    return _textures[4 * 3 - 3];
+                    return _rectangles[_tileCountW * _tileCountH - 3];
                 if (cell.IsMine)
-                    return _textures[4 * 3 - 1];
+                    return _rectangles[_tileCountW * _tileCountH - 1];
 
-                return _textures[cell.MinesAround];
+                return _rectangles[cell.MinesAround];
             }
         }
 
@@ -46,10 +56,13 @@ namespace Minesweeper.Framework
 
         private TextureResolver _textureResolver;
 
+        private Texture2D _tileSet;
+
         public MineFieldRenderer(MineField mineField, GraphicsDevice graphicsDevice, Texture2D tileSet)
         {
             MineField = mineField;
             GraphicsDevice = graphicsDevice;
+            _tileSet = tileSet;
             _textureResolver = new TextureResolver(tileSet, MineField.CellSize, MineField.CellSize);
 
             RenderTarget = new RenderTarget2D(
@@ -81,10 +94,10 @@ namespace Minesweeper.Framework
                 for (int j = 0; j < field.Width; j++)
                 {
                     var cell = field.Cells[i, j];
-                    var pos = new Vector2(j * 64, i * 64);
+                    var pos = new Vector2(j * MineField.CellSize, i * MineField.CellSize);
 
                     // Drawing the cell's texture
-                    _spriteBatch.Draw(_textureResolver.ResolveForCell(cell), pos, null, Color.White);
+                    _spriteBatch.Draw(_tileSet, pos, _textureResolver.GetSourceRectForCell(cell), Color.White);
                     
                     if (cell.IsWarned && cell.MinesAround > 0)
                     {
