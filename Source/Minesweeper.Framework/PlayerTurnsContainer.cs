@@ -5,10 +5,10 @@ namespace Minesweeper.Framework
 {
     public class PlayerTurnsContainer
     {
-        private List<Tuple<MineFieldSnapshot, PlayerTurnSnapshot>> _playerTurns =
-            new List<Tuple<MineFieldSnapshot, PlayerTurnSnapshot>>();
+        private List<PlayerTurnData> _playerTurns =
+            new List<PlayerTurnData>();
 
-        public List<Tuple<MineFieldSnapshot, PlayerTurnSnapshot>> PlayerTurns => _playerTurns;
+        public List<PlayerTurnData> PlayerTurns => _playerTurns;
         
         public MineField MineField { get; set; }
 
@@ -22,9 +22,9 @@ namespace Minesweeper.Framework
             _playerTurns.Clear();
         }
 
-        public void AddTurn(MineFieldSnapshot mineFieldSnapshot, PlayerTurnSnapshot playerTurnSnapshot)
+        public void AddTurn(MineFieldSnapshot mineFieldSnapshot, PlayerTurnSnapshot playerTurnSnapshot, string description, float time)
         {
-            _playerTurns.Add(new Tuple<MineFieldSnapshot, PlayerTurnSnapshot>(mineFieldSnapshot, playerTurnSnapshot));
+            _playerTurns.Add(new PlayerTurnData(mineFieldSnapshot, playerTurnSnapshot, description, time));
         }
 
         public void UndoTurn()
@@ -34,7 +34,7 @@ namespace Minesweeper.Framework
 
         public void UndoTurn(int turnId)
         {
-            MineField.RestoreFromSnapshot(_playerTurns[turnId].Item1);
+            MineField.RestoreFromSnapshot(_playerTurns[turnId].MineFieldSnapshot);
             _playerTurns.RemoveAt(turnId);
         }
     }

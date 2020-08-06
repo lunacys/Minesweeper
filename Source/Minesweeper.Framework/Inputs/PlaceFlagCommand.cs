@@ -8,7 +8,7 @@ namespace Minesweeper.Framework.Inputs
             : base(mineField, camera, container)
         { }
 
-        public override PlayerTurnSnapshot Execute()
+        public override PlayerTurnSnapshot Execute(float time)
         {
             var mousePos = Camera.ScreenToWorld(InputManager.MousePosition);
             var cellSize = MineField.CellSize;
@@ -18,7 +18,7 @@ namespace Minesweeper.Framework.Inputs
 
             if (cmd != null)
             {
-                OnPlayerTurn(fieldSnapshot, cmd);
+                OnPlayerTurn(fieldSnapshot, cmd, time);
             }
 
             return cmd;
