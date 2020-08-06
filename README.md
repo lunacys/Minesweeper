@@ -45,10 +45,10 @@ to run DesktopGL version of Minesweeper. You can also run Visual Studio and open
   - [x] Game time accumulates incorrectly
   - [x] Undo doesn't allow player to open cells if he caught a mine
   - [ ] The mine field is zooming if scrolling ImGUI windows
-  - [ ] The grid which is drawn after clicking on any cell is pretty ugly
+  - [ ] The grid which is drawn after clicking on any cell is ugly
   - [ ] Restart doesn't work properly
   - [ ] Redo doesn't work at all
-  - [ ] Solve function works incorrectly
+  - [x] Solve function works incorrectly
   - [x] **You cannot win in current version**
 - [ ] Implement auto flagging if there is an obvious pattern
 - [ ] Make seeds work as expected
