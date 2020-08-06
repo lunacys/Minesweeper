@@ -21,8 +21,6 @@ namespace Minesweeper.Framework.Screens
         private OrthographicCamera _camera;
         private MineField _field;
         private MineFieldRenderer _fieldRenderer;
-        private Texture2D[] _textures;
-        private Vector2 _lastCameraPos;
         private ImGuiRenderer _imGuiRenderer;
 
         private bool _lose = false;
@@ -35,14 +33,15 @@ namespace Minesweeper.Framework.Screens
         private int _minePutterDifficulty = (int) MinePutterDifficulty.Easy;
         private double _secondsElapsed = 0;
 
-        private List<Tuple<MineFieldSnapshot, PlayerTurnSnapshot>> _playerTurns =
-            new List<Tuple<MineFieldSnapshot, PlayerTurnSnapshot>>();
+        private ICommand _leftMouseButtonCommand = new NullCommand();
+        private ICommand _rightMouseButtonCommand = new NullCommand();
+
+        private PlayerTurnsContainer _playerTurnsContainer;
 
         public MineFieldScreen(Game game) 
             : base(game)
         {
             _field = new MineField(9, 9, 15, true, MinePutterDifficulty.Easy);
-            _textures = new Texture2D[4 * 3];
         }
 
         public override void Initialize()
@@ -56,9 +55,16 @@ namespace Minesweeper.Framework.Screens
             _camera.LookAt(new Vector2(GraphicsDevice.Viewport.Width / 2.0f, GraphicsDevice.Viewport.Height / 2.0f));
             _camera.Zoom = 0.5f;
 
-            _lastCameraPos = _camera.Position;
+            _playerTurnsContainer = new PlayerTurnsContainer(_field);
+            SetUpCommands();
 
             base.Initialize();
+        }
+
+        private void SetUpCommands()
+        {
+            _leftMouseButtonCommand = new RevealCellCommand(_field, _camera, _playerTurnsContainer);
+            _rightMouseButtonCommand = new PlaceFlagCommand(_field, _camera, _playerTurnsContainer);
         }
 
         public override void LoadContent()
@@ -78,8 +84,23 @@ namespace Minesweeper.Framework.Screens
 
         public override void Update(GameTime gameTime)
         {
-            var mousePos = _camera.ScreenToWorld(InputManager.MousePosition);
+            HandleInput();
 
+            if (_lose)
+            {
+                // if (_loseColor.A < 100)
+                double time = gameTime.TotalGameTime.TotalSeconds;
+                float pulsate = (float) Math.Sin(time * 8) + 1;
+                
+                _loseColor = new Color(0 + pulsate * 0.25f, 0f, 0f, 0 + pulsate * 0.25f);
+            }
+
+            if (_isGameStarted)
+                _secondsElapsed += gameTime.ElapsedGameTime.TotalSeconds;
+        }
+
+        private void HandleInput()
+        {
             if (InputManager.IsMouseButtonDown(MouseButton.Middle))
             {
                 _camera.Move(-InputManager.MouseVelocity / _camera.Zoom);
@@ -89,59 +110,29 @@ namespace Minesweeper.Framework.Screens
             {
                 Mouse.SetCursor(MouseCursor.Arrow);
             }
-
+            
             if (!_lose)
             {
                 if (InputManager.WasMouseButtonReleased(MouseButton.Right))
                 {
-                    var fieldSnapshot = _field.CreateSnapshot();
-                    var snapshot = _field.FlagAt((int)mousePos.X / _field.CellSize, (int)mousePos.Y / _field.CellSize);
-                    if (snapshot != null)
-                        _playerTurns.Add(new Tuple<MineFieldSnapshot, PlayerTurnSnapshot>(fieldSnapshot, snapshot));
+                    _rightMouseButtonCommand.Execute();
                 }
+
                 if (InputManager.WasMouseButtonReleased(MouseButton.Left))
                 {
-                    /*if (Math.Abs((_lastCameraPos - _camera.Position).Length()) < 20f &&
-                        mousePos.X > 0 &&
-                        mousePos.Y > 0 &&
-                        mousePos.X < _field.Width * _field.CellSize &&
-                        mousePos.Y < _field.Height * _field.CellSize)
-                    {*/
-                    var fieldSnapshot = _field.CreateSnapshot();
-                    var snapshot = _field.RevealAt((int)mousePos.X / _field.CellSize, (int)mousePos.Y / _field.CellSize);
+                    var snapshot = _leftMouseButtonCommand.Execute();
                     if (snapshot != null)
                     {
                         _isGameStarted = true;
-                        _playerTurns.Add(new Tuple<MineFieldSnapshot, PlayerTurnSnapshot>(fieldSnapshot, snapshot));
 
                         if (snapshot.NewCellState.IsMine && snapshot.NewCellState.IsOpen)
                         {
                             _lose = true;
                         }
                     }
-                    /*if (res)
-                    {
-                        _lose = true;
-                        _isGameStarted = false;
-                    }
-                    else
-                    {
-                        _isGameStarted = true;
-                    }*/
-                    // }
-                    
-                    _lastCameraPos = _camera.Position;
                 }
             }
-            else
-            {
-                // if (_loseColor.A < 100)
-                double time = gameTime.TotalGameTime.TotalSeconds;
-                float pulsate = (float) Math.Sin(time * 8) + 1;
-                
-                _loseColor = new Color(0 + pulsate * 0.25f, 0f, 0f, 0 + pulsate * 0.25f);
-            }
-
+            
             if (InputManager.WasKeyPressed(Keys.Space))
             {
                 _field.Generate();
@@ -159,9 +150,6 @@ namespace Minesweeper.Framework.Screens
                 if (_camera.Zoom > 0.3f)
                     _camera.ZoomOut(0.05f);
             }
-
-            if (_isGameStarted)
-                _secondsElapsed += gameTime.ElapsedGameTime.TotalSeconds;
         }
 
         public override void Draw(GameTime gameTime)
@@ -230,16 +218,16 @@ namespace Minesweeper.Framework.Screens
             // ImGui.ShowMetricsWindow();
 
             ImGui.Begin("Player Turns");
-            for (int i = 0; i < _playerTurns.Count; i++)
+            for (int i = 0; i < _playerTurnsContainer.PlayerTurns.Count; i++)
             {
-                var turn = _playerTurns[i];
+                var turn = _playerTurnsContainer.PlayerTurns[i];
                 ImGui.Text($"Turn #{i} at {turn.Item2.Position}: {turn.Item2.CompareStates()}");
-                if (i == _playerTurns.Count - 1)
+                if (i != 0 && i == _playerTurnsContainer.PlayerTurns.Count - 1)
                 {
                     ImGui.SameLine();
                     if (ImGui.Button("Undo"))
                     {
-                        UndoTurn(turn, i);
+                        _playerTurnsContainer.UndoTurn(i);
                     }    
                 }
             }
@@ -270,12 +258,12 @@ namespace Minesweeper.Framework.Screens
                 _field.Reset();
             }
 
-            if (_playerTurns.Count > 0)
+            if (_playerTurnsContainer.PlayerTurns.Count > 1)
             {
                 ImGui.SameLine();
                 if (ImGui.Button("Undo"))
                 {
-                    UndoTurn(_playerTurns.Last(), _playerTurns.Count - 1);
+                    _playerTurnsContainer.UndoTurn();
                 }
                 ImGui.SameLine();
                 if (ImGui.Button("Redo"))
@@ -352,22 +340,17 @@ namespace Minesweeper.Framework.Screens
             }*/
         }
 
-        private void UndoTurn(Tuple<MineFieldSnapshot, PlayerTurnSnapshot> snapshot, int turnId)
-        {
-            Console.WriteLine($"Undoing turn #{turnId}");
-            _field.RestoreFromSnapshot(snapshot.Item1);
-            _playerTurns.RemoveAt(turnId);
-        }
-        
         private void Start()
         {
-            _playerTurns = new List<Tuple<MineFieldSnapshot, PlayerTurnSnapshot>>();
             _lose = false;
             _isGameStarted = false;
             _secondsElapsed = 0;
             _loseColor = Color.Red * 0.01f;
             _field = new MineField(_fieldWidth, _fieldHeight, _totalMines, true, (MinePutterDifficulty) _minePutterDifficulty);
             _fieldRenderer = new MineFieldRenderer(_field, GraphicsDevice, _tilesetTexture);
+            _playerTurnsContainer.MineField = _field;
+            _playerTurnsContainer.Clear(); // TODO: Maybe should consider to leave the player turns but add new game command
+            SetUpCommands();
             _field.Generate();
         }
 

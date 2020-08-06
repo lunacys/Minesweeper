@@ -234,6 +234,9 @@ namespace Minesweeper.Framework
 
         public PlayerTurnSnapshot FlagAt(int x, int y)
         {
+            if (_isFirstTurn)
+                return null;
+            
             if (MinesLeft == 0 && FreeCellsLeft == 0)
                 return null;
             
