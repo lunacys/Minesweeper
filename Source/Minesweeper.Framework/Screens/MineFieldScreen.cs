@@ -196,8 +196,8 @@ namespace Minesweeper.Framework.Screens
 
                     foreach (var position in positions)
                     {
-                        _spriteBatch.FillRectangle(position * _field.CellSize, new Size2(_field.CellSize, _field.CellSize), Color.LightGray);
-                        _spriteBatch.DrawRectangle(position * _field.CellSize, new Size2(_field.CellSize, _field.CellSize), Color.Gray);
+                        _spriteBatch.FillRectangle(position.ToVector2() * _field.CellSize, new Size2(_field.CellSize, _field.CellSize), Color.LightGray);
+                        _spriteBatch.DrawRectangle(position.ToVector2() * _field.CellSize, new Size2(_field.CellSize, _field.CellSize), Color.Gray);
                     }
                 }
             }
