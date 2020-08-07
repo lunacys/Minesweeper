@@ -1,9 +1,11 @@
 ﻿using System;
 using System.Globalization;
+using System.Linq;
 using ImGuiNET;
 using Microsoft.Xna.Framework;
 using Minesweeper.Framework.GameStateManagement;
 using Minesweeper.Framework.MinePutters;
+using Minesweeper.Framework.ScoreManagement;
 
 namespace Minesweeper.Framework.Screens
 {
@@ -21,6 +23,7 @@ namespace Minesweeper.Framework.Screens
             RenderPlayerMoves();
             RenderGameSettings();
             RenderMinimap();
+            RenderScores();
 
             _imGuiRenderer.AfterLayout();
         }
@@ -187,6 +190,23 @@ namespace Minesweeper.Framework.Screens
                 ImGui.Text($"I'm minimap for turn id: {_minimapTurnId.Value}");
                 ImGui.End();
             }
+        }
+
+        private void RenderScores()
+        {
+            ImGui.Begin("Scores");
+
+            var scores = _scoreHandler.GetScoresForPlayerId("player#1");
+            if (scores != null)
+            {
+                var enumerable = scores as Score[] ?? scores.ToArray();
+                for (int i = 0; i < enumerable.Count(); i++)
+                {
+                   ImGui.Text($"#{i + 1}: {enumerable[i].Time:F1}"); 
+                }
+            }
+            
+            ImGui.End();
         }
     }
 }
