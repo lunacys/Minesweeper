@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using Microsoft.Xna.Framework;
 using MonoGame.Extended;
 
@@ -14,11 +15,9 @@ namespace Minesweeper.Framework.Inputs
             _oldCameraPos = camera.Position;
         }
         
-        public PlayerTurnSnapshot Execute(float time)
+        public void Execute(float time)
         {
             _camera.Move(-InputManager.MouseVelocity / _camera.Zoom);
-
-            return null;
         }
 
         public void Undo()

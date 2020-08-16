@@ -79,7 +79,7 @@ namespace Minesweeper.Framework
             MineField.Changed += (sender, args) => Render();
         }
 
-        private void Render()
+        public void Render()
         {
             GraphicsDevice.SetRenderTarget(RenderTarget);
 

@@ -121,21 +121,24 @@ namespace Minesweeper.Framework.Screens
 
                 if (InputManager.WasMouseButtonReleased(MouseButton.Left))
                 {
-                    var fieldSnapshot = _field.CreateSnapshot();
-                    var snapshot = _leftMouseButtonCommand.Execute(_gameTimeHandler.SecondsElapsed);
-                    if (snapshot != null)
+                    _leftMouseButtonCommand.Execute(_gameTimeHandler.SecondsElapsed);
+
+                    if (snapshots != null)
                     {
                         if (!_gameStateManager.IsPlaying)
                             _gameStateManager.CurrentState = GameState.Playing;
 
-                        if (snapshot.NewCellState.IsMine && snapshot.NewCellState.IsOpen)
+                        foreach (var snapshot in snapshots)
                         {
-                            _gameStateManager.CurrentState = GameState.Lost;
-                        }
-                        else if (_field.FreeCellsLeft == 0)
-                        {
-                            _gameStateManager.CurrentState = GameState.Won;
-                            _playerTurnsContainer.AddTurn(fieldSnapshot, snapshot, "Won!", _gameTimeHandler.SecondsElapsed);
+                            if (snapshot.NewCellState.IsMine)
+                            {
+                                _gameStateManager.CurrentState = GameState.Lost;
+                            }
+                            else if (_field.FreeCellsLeft == 0)
+                            {
+                                _gameStateManager.CurrentState = GameState.Won;
+                                _playerTurnsContainer.AddTurn(fieldSnapshot, snapshot, "Won!", _gameTimeHandler.SecondsElapsed);
+                            }
                         }
                     }
                 }

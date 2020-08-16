@@ -20,7 +20,7 @@ namespace Minesweeper.Framework.Screens
             
             RenderPlayerMoves();
             RenderGameSettings();
-            RenderMinimap();
+            // RenderMinimap();
 
             _imGuiRenderer.AfterLayout();
         }
@@ -40,15 +40,7 @@ namespace Minesweeper.Framework.Screens
                 {
                     ImGui.Text($"Turn #{i} at {turn.PlayerTurnSnapshot.Position}: {turn.Description} | {turn.Time:F1}");
                 }
-                
-                /*ImGui.SameLine();
-                if (ImGui.Button("Snapshot"))
-                {
-                    Console.WriteLine("Opening");
-                    _minimapTurnId = i;
-                    _isMinimapVisible = true;
-                }*/
-                
+
                 if (i != 0 && i == _playerTurnsContainer.PlayerTurns.Count - 1)
                 {
                     ImGui.SameLine();
@@ -174,7 +166,7 @@ namespace Minesweeper.Framework.Screens
             HelpMarker("30x16, 99 mines");
             
             ImGui.End();
-            
+
             _field.UseRecursiveOpen = useRecursiveOpen;
         }
 
@@ -182,10 +174,9 @@ namespace Minesweeper.Framework.Screens
         {
             if (_isMinimapVisible && _minimapTurnId.HasValue)
             {
-                if (ImGui.Begin("Minimap", ref _isMinimapVisible))
-                    Console.WriteLine("Begin?");
-                ImGui.Text($"I'm minimap for turn id: {_minimapTurnId.Value}");
-                ImGui.End();
+                ImGui.BeginPopup("Modal");
+                ImGui.Text("Modal text");
+                ImGui.EndPopup();
             }
         }
     }

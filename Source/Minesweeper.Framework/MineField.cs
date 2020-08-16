@@ -37,6 +37,8 @@ namespace Minesweeper.Framework
         public bool IsResolvable { get; }
         public bool UseRecursiveOpen { get; set; } = true;
         public int TotalCells => Width * Height;
+        public PlayerTurnSnapshot LastTurn { get; private set; }
+        public bool CaughtMine { get; private set; }
 
         private bool _isFirstTurn = true;
         private IMinePutter _minePutter;
@@ -144,22 +146,47 @@ namespace Minesweeper.Framework
             }
         }
 
-        public PlayerTurnSnapshot RevealAt(int x, int y, bool overrideRecursion = false)
+        public void RevealAt(int x, int y)
         {
             if (MinesLeft == 0 && FreeCellsLeft == 0)
-                return null;
+                return;
 
             if (y < 0 || y >= Height || x < 0 || x >= Width)
-                return null;
+                return;
             
             if (_isFirstTurn)
             {
-                var count = _minePutter.PutMines(this, x, y, Random);
+                _minePutter.PutMines(this, x, y, Random);
                 RebuildOpenCells();
                 _isFirstTurn = false;
             }
-            
+
             var cell = Cells[y, x];
+
+            if (!cell.IsOpen && cell.MinesAround == 0)
+            {
+                FloodFill(new Point(x, y));
+            }
+            else if (cell.IsOpen && cell.MinesAround > 0 && !_isFirstTurn && GetFlagsAroundCell(x, y) == cell.MinesAround)
+            {
+                PopulateResults(new Point(x - 1, y));
+                PopulateResults(new Point(x + 1, y));
+                PopulateResults(new Point(x, y - 1));
+                PopulateResults(new Point(x, y + 1));
+                
+                PopulateResults(new Point(x - 1, y - 1));
+                PopulateResults(new Point(x - 1, y + 1));
+                PopulateResults(new Point(x + 1, y - 1));
+                PopulateResults(new Point(x + 1, y + 1));
+            }
+            else if (!cell.IsOpen)
+            {
+               ResolveCell(new Point(x, y));
+            }
+
+            Changed?.Invoke(this, EventArgs.Empty);
+
+            /*var cell = Cells[y, x];
             var oldState = (FieldCell) cell.Clone();
 
             if (cell.IsFlagged)
@@ -212,24 +239,124 @@ namespace Minesweeper.Framework
                 RevealAt(x, y + 1);
             }
 
-            return new PlayerTurnSnapshot(new Point(x, y), cell, oldState);
+            return new PlayerTurnSnapshot(new Point(x, y), cell, oldState);*/
         }
 
-        public PlayerTurnSnapshot FlagAt(int x, int y)
+        private void PopulateResults(Point position)
+        {
+            if (position.X >= 0 && position.X < Width && position.Y >= 0 && position.Y < Height)
+            {
+                ResolveCell(position);
+            }
+        }
+
+        private PlayerTurnSnapshot ResolveCell(Point position)
+        {
+            var cell = Cells[position.Y, position.X];
+            
+            if (cell.IsFlagged)
+                return null;
+            
+            var oldState = (FieldCell) cell.Clone();
+
+            if (cell.IsOpen)
+                return null;
+
+            cell.IsOpen = true;
+            FreeCellsLeft--;
+            if (!cell.IsMine)
+                TotalOpenCells++;
+            return new PlayerTurnSnapshot(new Point(position.X, position.Y), cell, oldState);
+        }
+
+        private IEnumerable<PlayerTurnSnapshot> FloodFill(Point position)
+        {
+            var snapshots = new List<PlayerTurnSnapshot>();
+            var res = ResolveCell(position);
+            if (res == null)
+                return snapshots;
+            
+            var q = new Queue<Point>();
+
+            q.Enqueue(position);
+            
+            snapshots.Add(res);
+
+            while (q.Count > 0)
+            {
+                var n = q.Dequeue();
+
+                var leftPos = new Point(n.X - 1, n.Y);
+                if (HandleAt(leftPos, snapshots))
+                    q.Enqueue(leftPos);
+                    
+                var rightPos = new Point(n.X + 1, n.Y);
+                if (HandleAt(rightPos, snapshots))
+                    q.Enqueue(rightPos);
+                
+                var topPos = new Point(n.X, n.Y - 1);
+                if (HandleAt(topPos, snapshots))
+                    q.Enqueue(topPos);
+                
+                var bottomPos = new Point(n.X, n.Y + 1);
+                if (HandleAt(bottomPos, snapshots))
+                    q.Enqueue(bottomPos);
+                
+                var topLeftPos = new Point(n.X - 1, n.Y - 1);
+                if (HandleAt(topLeftPos, snapshots))
+                    q.Enqueue(topLeftPos);
+                
+                var bottomLeftPos = new Point(n.X - 1, n.Y + 1);
+                if (HandleAt(bottomLeftPos, snapshots))
+                    q.Enqueue(bottomLeftPos);
+                
+                var topRightPos = new Point(n.X + 1, n.Y - 1);
+                if (HandleAt(topRightPos, snapshots))
+                    q.Enqueue(topRightPos);
+                
+                var bottomRightPos = new Point(n.X + 1, n.Y + 1);
+                if (HandleAt(bottomRightPos, snapshots))
+                    q.Enqueue(bottomRightPos);
+            }
+
+            return snapshots;
+        }
+
+        private bool HandleAt(Point position, List<PlayerTurnSnapshot> snapshots)
+        {
+            if (position.X >= 0 && position.X < Width && position.Y >= 0 && position.Y < Height)
+            {
+                var bottomCell = Cells[position.Y, position.X];
+                if (!bottomCell.IsFlagged && !bottomCell.IsMine)
+                {
+                    var snapshot = ResolveCell(position);
+                    if (snapshot != null)
+                    {
+                        snapshots.Add(snapshot);
+                        if (bottomCell.MinesAround == 0)
+                            return true;
+                    }
+                }
+            }
+
+            return false;
+        }
+
+        public void FlagAt(int x, int y)
         {
             if (_isFirstTurn)
-                return null;
+                return;
             
             if (MinesLeft == 0 && FreeCellsLeft == 0)
-                return null;
+                return;
             
             if (x < 0 || x >= Width || y < 0 || y >= Height)
-                return null;
+                return;
             
             var cell = Cells[y, x];
 
             if (cell.IsOpen)
-                return null;
+                return;
 
             var oldCell = (FieldCell) cell.Clone();
 
@@ -247,8 +374,6 @@ namespace Minesweeper.Framework
             CheckCellsAroundForFlags(x, y);
             
             Changed?.Invoke(this, EventArgs.Empty);
-            
-            return new PlayerTurnSnapshot(new Point(x, y), cell, oldCell);
         }
 
         public IEnumerable<Point> GetSuitableCellPositionsAt(int x, int y)

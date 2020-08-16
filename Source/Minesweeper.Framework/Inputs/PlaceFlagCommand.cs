@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using MonoGame.Extended;
 
 namespace Minesweeper.Framework.Inputs
@@ -8,20 +9,18 @@ namespace Minesweeper.Framework.Inputs
             : base(mineField, camera, container)
         { }
 
-        public override PlayerTurnSnapshot Execute(float time)
+        public override void Execute(float time)
         {
             var mousePos = Camera.ScreenToWorld(InputManager.MousePosition);
             var cellSize = MineField.CellSize;
 
             var fieldSnapshot = MineField.CreateSnapshot();
-            var cmd = MineField.FlagAt((int) mousePos.X / cellSize, (int) mousePos.Y / cellSize);
+            MineField.FlagAt((int) mousePos.X / cellSize, (int) mousePos.Y / cellSize);
 
-            if (cmd != null)
+            /*if (cmd != null)
             {
                 OnPlayerTurn(fieldSnapshot, cmd, time);
-            }
-
-            return cmd;
+            }*/
         }
     }
 }

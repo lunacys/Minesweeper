@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using MonoGame.Extended;
 
 namespace Minesweeper.Framework.Inputs
@@ -15,7 +16,7 @@ namespace Minesweeper.Framework.Inputs
             Container = container;
         }
 
-        public abstract PlayerTurnSnapshot Execute(float time);
+        public abstract void Execute(float time);
         
         public virtual void Undo()
         {

@@ -1,17 +1,17 @@
+using System.Collections.Generic;
+
 namespace Minesweeper.Framework.Inputs
 {
     public interface ICommand
     {
-        PlayerTurnSnapshot Execute(float time);
+        void Execute(float time);
         void Undo();
     }
 
     public class NullCommand : ICommand
     {
-        public PlayerTurnSnapshot Execute(float time)
-        {
-            return null;
-        }
+        public void Execute(float time)
+        { }
 
         public void Undo() { }
     }
