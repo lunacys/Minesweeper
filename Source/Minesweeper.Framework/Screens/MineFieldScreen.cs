@@ -8,6 +8,7 @@ using Minesweeper.Framework.GameStateManagement;
 using Minesweeper.Framework.ImGUI;
 using Minesweeper.Framework.Inputs;
 using Minesweeper.Framework.MinePutters;
+using Minesweeper.Framework.ScoreManagement;
 using MonoGame.Extended;
 using MonoGame.Extended.Screens;
 
@@ -37,6 +38,8 @@ namespace Minesweeper.Framework.Screens
 
         private PlayerTurnsContainer _playerTurnsContainer;
 
+        private IScoreHandler _scoreHandler;
+
         public MineFieldScreen(Game game) 
             : base(game)
         {
@@ -44,6 +47,7 @@ namespace Minesweeper.Framework.Screens
             
             _gameStateManager = new GameStateManager();
             _gameTimeHandler = new GameTimeHandler(_gameStateManager);
+            _scoreHandler = new ScoreHandlerTextFile("scores.json");
         }
 
         public override void Initialize()
@@ -136,6 +140,7 @@ namespace Minesweeper.Framework.Screens
                         {
                             _gameStateManager.CurrentState = GameState.Won;
                             _playerTurnsContainer.AddTurn(fieldSnapshot, snapshot, "Won!", _gameTimeHandler.SecondsElapsed);
+                            _scoreHandler.Store("player#1", new Score(_gameTimeHandler.SecondsElapsed));
                         }
                     }
                 }
